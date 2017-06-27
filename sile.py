@@ -53,7 +53,7 @@ class SILETranslator(nodes.NodeVisitor):
         self.doc.append('\n\n')
 
     def visit_Text(self, node):
-        text = node.astext()
+        text = sile_quote(node.astext())
         self.doc.append(text)
     def depart_Text(self, node):
         pass
@@ -107,3 +107,11 @@ class SILETranslator(nodes.NodeVisitor):
 
     def astext(self):
         return ''.join(self.doc)
+
+def sile_quote(text):
+    return text.translate(str.maketrans({
+        '{': '\\{',
+        '}': '\\}',
+        '%': '\\%',
+        '\\': '\\\\'
+    }))
