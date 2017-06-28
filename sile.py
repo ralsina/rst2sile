@@ -22,7 +22,7 @@ def noop(self, node):
     pass
 
 def kill_node(self, node):
-    node.children = []
+    raise nodes.SkipNode
 
 class SILETranslator(nodes.NodeVisitor):
     def __init__(self, document):
