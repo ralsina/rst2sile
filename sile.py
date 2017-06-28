@@ -1,4 +1,7 @@
+from collections import defaultdict
+
 from docutils import nodes, writers
+import tinycss
 
 class Writer(writers.Writer):
     pass
@@ -20,6 +23,29 @@ class SILETranslator(nodes.NodeVisitor):
         super(SILETranslator, self).__init__(document)
         self.doc = []
         self.section_level = 0
+        css_parser = tinycss.make_parser('page3')
+        rules = css_parser.parse_stylesheet_file('styles.css').rules
+        styles = {}
+        for rule in rules:
+            key = rule.selector.as_css().lower()
+            value = {}
+            for dec in rule.declarations:
+                name = dec.name
+                # CSS synonyms
+                if name.startswith('font-'):
+                    name = name[5:]
+                value[name] = dec.value.as_css()
+            styles[key] = value
+
+        default = styles['body'].copy()
+        for k in styles:
+            v = {}
+            v.update(default)
+            v.update(styles[k])
+            styles[k] = v
+
+        self.styles = defaultdict(lambda: default)
+        self.styles.update(styles)
 
     def start_cmd(self, envname, **kwargs):
         opts = ''
@@ -40,9 +66,9 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_document(self, node):
         # TODO Handle packages better
         self.doc.append('''\\begin[class=book]{document}
-        \script[src=packages/verbatim]
-        \script[src=packages/pdf]
-        \script[src=packages/color]
+        \\script[src=packages/verbatim]
+        \\script[src=packages/pdf]
+        \\script[src=packages/color]
         ''')
     def depart_document(self, node):
         self.end_env('document')
@@ -59,7 +85,7 @@ class SILETranslator(nodes.NodeVisitor):
         pass
 
     def visit_literal(self, node):
-        self.start_cmd('code')
+        self.start_cmd('font', **self.styles['literal'])
     depart_literal = end_cmd
 
     def visit_emphasis(self, node):
