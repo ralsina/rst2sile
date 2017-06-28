@@ -226,7 +226,8 @@ class SILETranslator(nodes.NodeVisitor):
 
     depart_subtitle = depart_title
 
-    visit_comment = noop
+    def visit_comment(self, node):
+        node.children = []
     depart_comment = noop
 
     def astext(self):
