@@ -23,6 +23,7 @@ class SILETranslator(nodes.NodeVisitor):
         super(SILETranslator, self).__init__(document)
         self.doc = []
         self.section_level = 0
+        self.list_depth = 0
         css_parser = tinycss.make_parser('page3')
         rules = css_parser.parse_stylesheet_file('styles.css').rules
         styles = {}
@@ -120,6 +121,16 @@ class SILETranslator(nodes.NodeVisitor):
         self.section_level += 1
     def depart_section(self, node):
         self.section_level -= 1
+
+    def visit_bullet_list(self, node):
+        self.start_cmd('set', parameter='document.lskip', value='%dpt' % (self.list_depth*12))
+        self.list_depth += 1
+    def depart_bullet_list(self, node):
+        self.end_cmd()
+        self.list_depth -= 1
+    def visit_list_item(self, node):
+        self.start_cmd('listitem')
+    depart_list_item = end_cmd
 
     def visit_title(self, node):
         # TODO: do sections as macros because the book class is too limited
