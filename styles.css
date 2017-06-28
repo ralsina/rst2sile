@@ -10,7 +10,7 @@ body {
 
 title {
     size: 20pt;
-    weight: 900;
+    font-weight: 900;
 }
 
 
@@ -18,7 +18,7 @@ title {
 
 subtitle {
     size: 15pt;
-    weight: 900;
+    font-weight: 900;
 }
 
 
