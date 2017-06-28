@@ -284,6 +284,7 @@ def css_to_sile(style):
     has_alignment = 'text-align' in keys
     has_color = 'color' in keys
     has_margin = bool(keys.intersection(margin_keys))
+    has_indent = 'text-indent' in keys
 
     start = ''
     trailer = ''
@@ -323,6 +324,8 @@ def css_to_sile(style):
         start += '\\color[color=%s]{' % style['color']
         trailer = '}' + trailer
 
+    if has_indent:
+        start += '\\set[parameter=current.parindent,value=%s]' % style['text-indent']
 
 
     return start, trailer
