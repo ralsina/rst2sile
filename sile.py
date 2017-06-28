@@ -4,6 +4,7 @@ from docutils import nodes, writers
 from roman import toRoman
 import tinycss
 
+
 class Writer(writers.Writer):
     pass
 
@@ -16,8 +17,10 @@ class Writer(writers.Writer):
         self.document.walkabout(visitor)
         self.output = visitor.astext()
 
+
 def noop(self, node):
     pass
+
 
 class SILETranslator(nodes.NodeVisitor):
     def __init__(self, document):
@@ -52,7 +55,8 @@ class SILETranslator(nodes.NodeVisitor):
     def format_args(self, **kwargs):
         opts = ''
         if kwargs:
-            opts = '[%s]' % ','.join('%s=%s' % (k,v) for k,v in kwargs.items())
+            opts = '[%s]' % ','.join('%s=%s' % (k, v)
+                                     for k, v in kwargs.items())
         return opts
 
     def start_cmd(self, envname, **kwargs):
@@ -60,14 +64,17 @@ class SILETranslator(nodes.NodeVisitor):
         opts = self.format_args(**kwargs)
         cmd = '\\%s%s{' % (envname, opts)
         self.doc.append(cmd)
+
     def end_cmd(self, _=None):
         self.doc.append('}')
 
     def start_env(self, envname, **kwargs):
         opts = ''
         if kwargs:
-            opts = '[%s]' % ','.join('%s=%s' % (k,v) for k,v in kwargs.items())
+            opts = '[%s]' % ','.join('%s=%s' % (k, v)
+                                     for k, v in kwargs.items())
         self.doc.append('\\begin%s{%s}' % (opts, envname))
+
     def end_env(self, envname):
         self.doc.append('\\end{%s}\n\n' % envname)
 
@@ -87,53 +94,67 @@ class SILETranslator(nodes.NodeVisitor):
 
     def visit_paragraph(self, node):
         pass
+
     def depart_paragraph(self, node):
         self.doc.append('\n\n')
 
     def visit_Text(self, node):
         text = sile_quote(node.astext())
         self.doc.append(text)
+
     def depart_Text(self, node):
         pass
 
     def visit_literal(self, node):
         self.start_cmd('font', **self.styles['literal'])
+
     depart_literal = end_cmd
 
     def visit_emphasis(self, node):
         self.start_cmd('em')
+
     depart_emphasis = end_cmd
 
     def visit_strong(self, node):
         self.start_cmd('font', weight=800)
+
     depart_strong = end_cmd
 
     def visit_literal_block(self, node):
         self.start_env('verbatim')
+
     def depart_literal_block(self, node):
         self.end_env('verbatim')
 
     def visit_inline(self, node):
         for cl in node.get('classes', []):
             self.start_cmd('font', **self.styles['.' + cl])
+
     def depart_inline(self, node):
         for cl in node.get('classes', []):
             self.end_cmd()
 
     def visit_section(self, node):
         self.section_level += 1
+
     def depart_section(self, node):
         self.section_level -= 1
 
     def visit_bullet_list(self, node):
-        self.start_cmd('set', parameter='document.lskip', value='%dpt' % (self.list_depth*12+12))
+        self.start_cmd(
+            'set',
+            parameter='document.lskip',
+            value='%dpt' % (self.list_depth * 12 + 12))
         self.list_depth += 1
+
     def depart_bullet_list(self, node):
         self.end_cmd()
         self.list_depth -= 1
+
     def visit_list_item(self, node):
         # TODO: move the bullet out of the text flow (see pullquote and rebox packages)
         self.doc.append('%s ' % self.bullet_for_node(node))
+
     depart_list_item = noop
 
     visit_enumerated_list = visit_bullet_list
@@ -143,6 +164,7 @@ class SILETranslator(nodes.NodeVisitor):
         self.start_cmd('set', parameter='document.lskip', value='36pt')
         self.end_cmd()
         self.start_cmd('font', **self.styles['blockquote'])
+
     def depart_block_quote(self, node):
         self.end_cmd()
         self.doc.append('\n\n')
@@ -150,13 +172,15 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_attribution(self, node):
         self.start_cmd('font', **self.styles['attribution'])
         self.start_env('raggedleft')
+
     def depart_attribution(self, node):
         self.end_env('raggedleft')
         self.end_cmd()
 
     def visit_transition(self, node):
         # TODO: style
-        self.doc.append('\n\n\hrule[width=80%pw, height=0.5pt]\n\n')
+        self.doc.append('\n\n\\hrule[width=80%pw, height=0.5pt]\n\n')
+
     depart_transition = noop
 
     def visit_title(self, node):
@@ -172,6 +196,7 @@ class SILETranslator(nodes.NodeVisitor):
             self.start_cmd('subsection')
         else:
             raise Exception('Too deep')
+
     def depart_title(self, node):
         self.end_cmd()
         if self.section_level < 2:  # Doc Title
@@ -186,6 +211,7 @@ class SILETranslator(nodes.NodeVisitor):
             self.start_cmd('font', **self.styles['subtitle'])
         else:
             raise Exception('Too deep')
+
     depart_subtitle = depart_title
 
     def astext(self):
@@ -203,8 +229,8 @@ class SILETranslator(nodes.NodeVisitor):
         else:
             start = 1
 
-        if node.parent.get('bullet') or isinstance(
-                node.parent, nodes.bullet_list):
+        if node.parent.get('bullet') or isinstance(node.parent,
+                                                   nodes.bullet_list):
             b = node.parent.get('bullet', '*')
             if b == "None":
                 b = ""
@@ -218,21 +244,22 @@ class SILETranslator(nodes.NodeVisitor):
         elif node.parent.get('enumtype') == 'upperroman':
             b = toRoman(node.parent.children.index(node) + start).upper() + '.'
         elif node.parent.get('enumtype') == 'loweralpha':
-            b = string.lowercase[node.parent.children.index(node)
-                + start - 1] + '.'
+            b = string.lowercase[node.parent.children.index(node) +
+                                 start - 1] + '.'
         elif node.parent.get('enumtype') == 'upperalpha':
-            b = string.uppercase[node.parent.children.index(node)
-                + start - 1] + '.'
+            b = string.uppercase[node.parent.children.index(node) +
+                                 start - 1] + '.'
         else:
-            log.critical("Unknown kind of list_item %s [%s]",
-                node.parent, nodeid(node))
+            log.critical("Unknown kind of list_item %s [%s]", node.parent,
+                         nodeid(node))
         return b
 
 
 def sile_quote(text):
-    return text.translate(str.maketrans({
-        '{': '\\{',
-        '}': '\\}',
-        '%': '\\%',
-        '\\': '\\\\'
-    }))
+    return text.translate(
+        str.maketrans({
+            '{': '\\{',
+            '}': '\\}',
+            '%': '\\%',
+            '\\': '\\\\'
+        }))
