@@ -1,27 +1,208 @@
+/*General style for the document*/
+
 body {
     family: DejaVu Sans;
     size: 10pt;
 }
+
+
+/*Style for the doc title*/
 
 title {
     size: 20pt;
     weight: 900;
 }
 
+
+/*Style for the doc subtitle*/
+
 subtitle {
     size: 15pt;
     weight: 900;
 }
+
+
+/*Style for inline literals*/
 
 literal {
     family: FreeMono;
     language: und;
 }
 
+
+/*Style for literal blocks*/
+
 verbatim {
     family: FreeMono;
     language: und;
 }
-/*TODO: implement all classes for syntax highlighting*/
+
+
+/*Style for block quote body text*/
+
+blockquote {}
+
+
+/*Style for quote attributions*/
+
+attribution {}
+
+
+/* TODO: implement all classes for syntax highlighting*/
+
+.comment {
+    color: #008800;
+    font-style: italic
+}
+
+.error {
+    border: 1px solid #FF0000
+}
+
+.deleted {
+    color: #A00000
+}
+
+.emph {
+    font-style: italic
+}
+
+.error {
+    color: #FF0000
+}
+
+.heading {
+    color: #000080;
+    font-weight: 900
+}
+
+.inserted {
+    color: #00A000
+}
+
+.output {
+    color: #808080
+}
+
+.prompt {
+    color: #000080;
+    font-weight: 900
+}
+
+.strong {
+    font-weight: 900
+}
+
+.subheading {
+    color: #800080;
+    font-weight: 900
+}
+
+.traceback {
+    color: #0040D0
+}
+
 .keyword {
+    color: #AA22FF;
+    font-weight: 900
+}
+
+.pseudo {
+    font-weight: normal
+}
+
+.number {
+    color: #666666
+}
+
+.string {
+    color: #BB4444
+}
+
+.string.doc {
+    color: #BB4444;
+    font-style: italic
+}
+
+.string.escape {
+    color: #BB6622;
+    font-weight: 900
+}
+
+.string.interpol {
+    color: #BB6688;
+    font-weight: 900
+}
+
+.string.other {
+    color: #008000
+}
+
+.string.regex {
+    color: #BB6688
+}
+
+.string.symbol {
+    color: #B8860B
+}
+
+.attribute {
+    color: #BB4444
+}
+
+.builtin {
+    color: #AA22FF
+}
+
+.class {
+    color: #0000FF
+}
+
+.constant {
+    color: #880000
+}
+
+.decorator {
+    color: #AA22FF
+}
+
+.entity {
+    color: #999999;
+    font-weight: 900
+}
+
+.exception {
+    color: #D2413A;
+    font-weight: 900
+}
+
+.function {
+    color: #00A000
+}
+
+.label {
+    color: #A0A000
+}
+
+.namespace {
+    color: #0000FF;
+    font-weight: 900
+}
+
+.tag {
+    color: #008000;
+    font-weight: 900
+}
+
+.variable {
+    color: #B8860B
+}
+
+.operator {
+    color: #666666
+}
+
+.word {
+    color: #AA22FF;
+    font-weight: 900
 }
