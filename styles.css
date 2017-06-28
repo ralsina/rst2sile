@@ -5,7 +5,16 @@ body {
     size: 10pt;
 }
 
+/* Style for paragraphs */
+p {
+    text-indent: 10pt;
+}
+
 /*Style for the doc title*/
+
+.foo {
+    text-indent: -20pt;
+}
 
 title {
     size: 20pt;

@@ -86,6 +86,7 @@ class SILETranslator(nodes.NodeVisitor):
 
     def visit_document(self, node):
         # TODO Handle packages better
+        s, t = css_to_sile(self.styles['body'])
         self.doc.append('''\\begin[class=book]{document}
         \\script[src=packages/verbatim]
         \\script[src=packages/pdf]
@@ -94,14 +95,20 @@ class SILETranslator(nodes.NodeVisitor):
         \\define[command="verbatim:font"]{\\font%s}
         \\set[parameter=document.parskip,value=12pt]
         \\set[parameter=document.parindent,value=0pt]
-        \\font%s
-        \n\n''' % (self.format_args(**self.styles['verbatim']), self.format_args(**self.styles['body'])))
+        %s
+        \n\n''' % (self.format_args(**self.styles['verbatim']), s))
+        node._pending = t
 
     def depart_document(self, node):
+        self.doc.append(node._pending)
         self.end_env('document')
 
-    visit_paragraph = apply_classes
-
+    def visit_paragraph(self, node):
+        s, t = css_to_sile(self.styles['p'])
+        self.doc.append(s)
+        self.apply_classes(node)
+        node._pending = t + node._pending
+    
     def depart_paragraph(self, node):
         self.close_classes(node)
         self.doc.append('\n\n')
@@ -325,7 +332,6 @@ def css_to_sile(style):
         trailer = '}' + trailer
 
     if has_indent:
-        start += '\\set[parameter=current.parindent,value=%s]' % style['text-indent']
-
+        start += '\\set[parameter=document.parindent,value=%s]' % style['text-indent']
 
     return start, trailer
