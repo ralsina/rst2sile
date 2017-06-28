@@ -53,7 +53,6 @@ class SILETranslator(nodes.NodeVisitor):
         return opts
 
     def start_cmd(self, envname, **kwargs):
-        # TODO: handle font specially, since color and alignment are separate commands.
         opts = self.format_args(**kwargs)
         cmd = '\\%s%s{' % (envname, opts)
         self.doc.append(cmd)
@@ -76,6 +75,7 @@ class SILETranslator(nodes.NodeVisitor):
         self.doc.append('''\\begin[class=book]{document}
         \\script[src=packages/verbatim]
         \\script[src=packages/pdf]
+        \\script[src=packages/color]
         \\script[src=packages/rules]
         \\define[command="verbatim:font"]{\\font%s}
         \\set[parameter=document.parskip,value=12pt]
@@ -100,9 +100,12 @@ class SILETranslator(nodes.NodeVisitor):
         pass
 
     def visit_literal(self, node):
-        self.start_cmd('font', **self.styles['literal'])
+        s, t = css_to_sile(self.styles['literal'])
+        self.doc.append(s)
+        node._pending = t
 
-    depart_literal = end_cmd
+    def depart_literal(self, node):
+        self.doc.append(node._pending)
 
     def visit_emphasis(self, node):
         self.start_cmd('em')
@@ -121,12 +124,17 @@ class SILETranslator(nodes.NodeVisitor):
         self.end_env('verbatim')
 
     def visit_inline(self, node):
+        start = ''
+        end = ''
         for cl in node.get('classes', []):
-            self.start_cmd('font', **self.styles['.' + cl])
+            s, e = css_to_sile(self.styles['.' + cl])
+            start +=s
+            end += e
+        self.doc.append(start)
+        node._pending = end
 
     def depart_inline(self, node):
-        for _ in node.get('classes', []):
-            self.end_cmd()
+        self.doc.append(node._pending)
 
     def visit_section(self, node):
         self.section_level += 1
@@ -257,3 +265,28 @@ def sile_quote(text):
             '%': '\\%',
             '\\': '\\\\'
         }))
+
+font_keys = {'weight', 'family', 'size'}
+
+def css_to_sile(style):
+    """Given a CSS-like style, create a SILE environment."""
+
+    keys = set(style.keys())
+    has_font = bool(keys.intersection(font_keys))
+    has_alignment = 'text-alignment' in keys
+    has_color = 'color' in keys
+
+    start = ''
+    trailer = ''
+
+    if has_font:
+        opts = ','.join('%s=%s' % (k,style[k]) for k in font_keys if k in style)
+        s = '\\font[%s]{' % opts
+        start += s
+        trailer += '}'
+
+    if has_color:
+        start += '\\color[color=%s]{' % style['color']
+        trailer += '}'
+
+    return start, trailer

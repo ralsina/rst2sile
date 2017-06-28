@@ -27,6 +27,7 @@ subtitle {
 literal {
     family: FreeMono;
     language: und;
+    color: red;
 }
 
 
@@ -108,7 +109,7 @@ attribution {}
 }
 
 .pseudo {
-    font-weight: normal
+    font-weight: 500;
 }
 
 .number {
