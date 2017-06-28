@@ -42,16 +42,17 @@ verbatim {
 /*Style for block quote body text*/
 
 blockquote {
-    text-align: right;
+    margin-left: 5em;
+    font-style: italic;
 }
 
 
 /*Style for quote attributions*/
 
-attribution, .attribution{
-    font-style: italic;
+attribution {
+    font-style: regular;
+    font-weight: 800;
     text-align: right;
-    margin-right: 100px;
 }
 
 

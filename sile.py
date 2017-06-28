@@ -269,28 +269,21 @@ def sile_quote(text):
             '\\': '\\\\'
         }))
 
-font_keys = {'script', 'language','style', 'weight', 'family', 'size'}
 
 def css_to_sile(style):
     """Given a CSS-like style, create a SILE environment."""
+
+    font_keys = {'script', 'language','style', 'weight', 'family', 'size'}
+    margin_keys = {'margin-left', 'margin-right'}
 
     keys = set(style.keys())
     has_font = bool(keys.intersection(font_keys))
     has_alignment = 'text-align' in keys
     has_color = 'color' in keys
+    has_margin = bool(keys.intersection(margin_keys))
 
     start = ''
     trailer = ''
-
-    if has_font:
-        opts = ','.join('%s=%s' % (k,style[k]) for k in font_keys if k in style)
-        s = '\\font[%s]{' % opts
-        start += s
-        trailer = '}' + trailer
-
-    if has_color:
-        start += '\\color[color=%s]{' % style['color']
-        trailer = '}' + trailer
 
     if has_alignment:
         value = style['text-align']
@@ -304,5 +297,25 @@ def css_to_sile(style):
             start += '\\begin{raggedright}'
             trailer = '\\end{raggedright}' + trailer
         # Fully justified is default
+
+    if has_margin:
+        if 'margin-right' in keys:
+            start += '\\set[parameter=document.rskip,value=%s]' % style['margin-right']
+            trailer = '\\set[parameter=document.rskip,value=0]' + trailer
+        if 'margin-left' in keys:
+            start += '\\set[parameter=document.lskip,value=%s]' % style['margin-left']
+            trailer = '\\set[parameter=document.lskip,value=0]' + trailer
+
+    if has_font:
+        opts = ','.join('%s=%s' % (k,style[k]) for k in font_keys if k in style)
+        s = '\\font[%s]{' % opts
+        start += s
+        trailer = '}' + trailer
+
+    if has_color:
+        start += '\\color[color=%s]{' % style['color']
+        trailer = '}' + trailer
+
+
 
     return start, trailer
