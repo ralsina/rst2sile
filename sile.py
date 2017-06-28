@@ -115,7 +115,7 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_title(self, node):
         # TODO: do titles using class
         if self.section_level == 0:  # Doc Title
-            self.start_cmd('color', color='red')
+            self.start_cmd('font', **self.styles['title'])
         elif self.section_level == 1:
             self.start_cmd('chapter')
         elif self.section_level == 2:

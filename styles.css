@@ -1,0 +1,14 @@
+body {
+    family: DejaVu;
+    size: 10pt;
+}
+
+title {
+    size: 20pt;
+    weight: 900;
+}
+
+literal {
+    family: FreeMono;
+    language: und;
+}
