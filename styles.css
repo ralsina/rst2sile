@@ -20,6 +20,7 @@ literal {
 
 verbatim {
     family: FreeMono;
+    language: und;
 }
 /*TODO: implement all classes for syntax highlighting*/
 .keyword {

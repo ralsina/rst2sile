@@ -42,13 +42,6 @@ class SILETranslator(nodes.NodeVisitor):
                 value[name] = dec.value.as_css()
             styles[key] = value
 
-        default = styles['body'].copy()
-        # for k in styles:
-        #     v = {}
-        #     v.update(default)
-        #     v.update(styles[k])
-        #     styles[k] = v
-
         self.styles = defaultdict(dict)
         self.styles.update(styles)
 
@@ -87,7 +80,8 @@ class SILETranslator(nodes.NodeVisitor):
         \\define[command="verbatim:font"]{\\font%s}
         \\set[parameter=document.parskip,value=12pt]
         \\set[parameter=document.parindent,value=0pt]
-        \n\n''' % self.format_args(**self.styles['verbatim']))
+        \\font%s
+        \n\n''' % (self.format_args(**self.styles['verbatim']), self.format_args(**self.styles['body'])))
 
     def depart_document(self, node):
         self.end_env('document')
@@ -131,7 +125,7 @@ class SILETranslator(nodes.NodeVisitor):
             self.start_cmd('font', **self.styles['.' + cl])
 
     def depart_inline(self, node):
-        for cl in node.get('classes', []):
+        for _ in node.get('classes', []):
             self.end_cmd()
 
     def visit_section(self, node):
