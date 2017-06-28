@@ -219,6 +219,9 @@ class SILETranslator(nodes.NodeVisitor):
 
     depart_subtitle = depart_title
 
+    visit_comment = noop
+    depart_comment = noop
+
     def astext(self):
         return ''.join(self.doc)
 
