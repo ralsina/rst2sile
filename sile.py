@@ -224,8 +224,9 @@ class SILETranslator(nodes.NodeVisitor):
 
     def visit_subtitle(self, node):
         if self.section_level == 0:  # Doc SubTitle
-            self.doc.append('\\noindent')
-            self.start_cmd('font', **self.styles['subtitle'])
+            s, t = css_to_sile(self.styles['subtitle'])
+            self.doc.append(s)
+            node._pending = t
         else:
             raise Exception('Too deep')
     depart_subtitle = depart_title
