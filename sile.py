@@ -191,7 +191,7 @@ class SILETranslator(nodes.NodeVisitor):
 
     def visit_transition(self, node):
         # TODO: style
-        self.doc.append('\n\n\\hrule[width=80%pw, height=0.5pt]\n\n')
+        self.doc.append('\n\n\\hrule[width=100%fw, height=0.5pt]\n\n')
 
     depart_transition = noop
 
@@ -200,6 +200,10 @@ class SILETranslator(nodes.NodeVisitor):
         # TODO: handle classes?
         if isinstance(node.parent, nodes.topic):  # Topic title
             s, t = css_to_sile(self.styles['topic-title'])
+            self.doc.append(s)
+            node._pending = t
+        elif isinstance(node.parent, nodes.sidebar):  # Sidebar title
+            s, t = css_to_sile(self.styles['sidebar-title'])
             self.doc.append(s)
             node._pending = t
         elif self.section_level == 0:  # Doc Title
@@ -233,6 +237,9 @@ class SILETranslator(nodes.NodeVisitor):
 
     visit_comment = kill_node
     depart_comment = noop
+
+    visit_sidebar = apply_classes
+    depart_sidebar = close_classes
 
     # TODO: implement headers/footers at some point
     visit_decoration = kill_node

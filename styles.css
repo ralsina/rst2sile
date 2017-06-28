@@ -12,6 +12,17 @@ paragraph {
     text-indent: 0pt;
 }
 
+/*Style for sidebars*/
+
+sidebar {
+    margin-left: 10%fw;
+    margin-right: 10%fw;
+}
+sidebar-title {
+    font-weight: 900;
+    text-indent: 0;
+    text-align: right;
+}
 
 /*Style for the doc title*/
 
