@@ -75,7 +75,7 @@ class SILETranslator(nodes.NodeVisitor):
         self.doc.append('''\\begin[class=book]{document}
         \\script[src=packages/verbatim]
         \\script[src=packages/pdf]
-        \\script[src=packages/color]
+        \\script[src=packages/rules]
         \\define[command="verbatim:font"]{\\font%s}
         \n\n''' % self.format_args(**self.styles['verbatim']))
 
@@ -129,8 +129,16 @@ class SILETranslator(nodes.NodeVisitor):
         self.end_cmd()
         self.list_depth -= 1
     def visit_list_item(self, node):
-        self.start_cmd('listitem')
-    depart_list_item = end_cmd
+        self.doc.append('* ')
+    depart_list_item = noop
+
+    visit_enumerated_list = visit_bullet_list
+    depart_enumerated_list = depart_bullet_list
+
+    def visit_transition(self, node):
+        # TODO: style
+        self.doc.append('\n\n\hrule[width=80%pw, height=0.5pt]\n\n')
+    depart_transition = noop
 
     def visit_title(self, node):
         # TODO: do sections as macros because the book class is too limited
