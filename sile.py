@@ -274,7 +274,7 @@ def css_to_sile(style):
     """Given a CSS-like style, create a SILE environment."""
 
     font_keys = {'script', 'language','style', 'weight', 'family', 'size'}
-    margin_keys = {'margin-left', 'margin-right'}
+    margin_keys = {'margin-left', 'margin-right', 'margin-top', 'margin-bottom'}
 
     keys = set(style.keys())
     has_font = bool(keys.intersection(font_keys))
@@ -305,6 +305,10 @@ def css_to_sile(style):
         if 'margin-left' in keys:
             start += '\\set[parameter=document.lskip,value=%s]' % style['margin-left']
             trailer = '\\set[parameter=document.lskip,value=0]' + trailer
+        if 'margin-top' in keys:
+            start += '\\skip[height=%s]' % style['margin-top']
+        if 'margin-bottom' in keys:
+            trailer = '\\skip[height=%s]' % style['margin-bottom'] + trailer
 
     if has_font:
         opts = ','.join('%s=%s' % (k,style[k]) for k in font_keys if k in style)
