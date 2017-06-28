@@ -163,21 +163,20 @@ class SILETranslator(nodes.NodeVisitor):
     depart_enumerated_list = depart_bullet_list
 
     def visit_block_quote(self, node):
-        self.start_cmd('set', parameter='document.lskip', value='36pt')
-        self.end_cmd()
-        self.start_cmd('font', **self.styles['blockquote'])
+        s, t = css_to_sile(self.styles['blockquote'])
+        self.doc.append(s)
+        node._pending = t
 
     def depart_block_quote(self, node):
-        self.end_cmd()
-        self.doc.append('\n\n')
+        self.doc.append('%s\n\n' % node._pending)
 
     def visit_attribution(self, node):
-        self.start_cmd('font', **self.styles['attribution'])
-        self.start_env('raggedleft')
+        s, t = css_to_sile(self.styles['attribution'])
+        self.doc.append(s)
+        node._pending = t
 
     def depart_attribution(self, node):
-        self.end_env('raggedleft')
-        self.end_cmd()
+        self.doc.append(node._pending)
 
     def visit_transition(self, node):
         # TODO: style
@@ -266,14 +265,14 @@ def sile_quote(text):
             '\\': '\\\\'
         }))
 
-font_keys = {'weight', 'family', 'size'}
+font_keys = {'script', 'language','style', 'weight', 'family', 'size'}
 
 def css_to_sile(style):
     """Given a CSS-like style, create a SILE environment."""
 
     keys = set(style.keys())
     has_font = bool(keys.intersection(font_keys))
-    has_alignment = 'text-alignment' in keys
+    has_alignment = 'text-align' in keys
     has_color = 'color' in keys
 
     start = ''
@@ -283,10 +282,23 @@ def css_to_sile(style):
         opts = ','.join('%s=%s' % (k,style[k]) for k in font_keys if k in style)
         s = '\\font[%s]{' % opts
         start += s
-        trailer += '}'
+        trailer = '}' + trailer
 
     if has_color:
         start += '\\color[color=%s]{' % style['color']
-        trailer += '}'
+        trailer = '}' + trailer
+
+    if has_alignment:
+        value = style['text-align']
+        if value == 'right':
+            start += '\\begin{raggedleft}'
+            trailer = '\\end{raggedleft}' + trailer
+        elif value == 'center':
+            start += '\\begin{center}'
+            trailer = '\\end{center}' + trailer
+        elif value in ['left']:
+            start += '\\begin{raggedright}'
+            trailer = '\\end{raggedright}' + trailer
+        # Fully justified is default
 
     return start, trailer

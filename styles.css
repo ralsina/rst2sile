@@ -41,12 +41,17 @@ verbatim {
 
 /*Style for block quote body text*/
 
-blockquote {}
+blockquote {
+    text-align: right;
+}
 
 
 /*Style for quote attributions*/
 
-attribution {}
+attribution {
+    font-style: italic;
+    text-align: right
+}
 
 
 /* TODO: implement all classes for syntax highlighting*/
