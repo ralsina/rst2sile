@@ -12,17 +12,32 @@ paragraph {
     text-indent: 0pt;
 }
 
+
 /*Style for sidebars*/
 
 sidebar {
     margin-left: 10%fw;
     margin-right: 10%fw;
 }
+
 sidebar-title {
     font-weight: 900;
     text-indent: 0;
     text-align: right;
 }
+
+
+/*Admonitions*/
+
+attention, caution, danger, error, hint, important, note, tip, warning, admonition {
+}
+
+admonition-title {
+    font-weight: 900;
+    text-indent: 0;
+    text-align: center;
+}
+
 
 /*Style for the doc title*/
 
@@ -51,6 +66,7 @@ topic {
     margin-left: 100pt;
 }
 
+
 /*Style for inline literals*/
 
 literal {
@@ -70,7 +86,7 @@ verbatim {
 
 /*Style for block quote body text*/
 
-blockquote {
+block_quote {
     margin-left: 5em;
     font-style: italic;
 }

@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from docutils import nodes, writers
+from docutils import languages, nodes, writers
 from roman import toRoman
 import tinycss
 
@@ -27,6 +27,9 @@ def kill_node(self, node):
 class SILETranslator(nodes.NodeVisitor):
     def __init__(self, document):
         super(SILETranslator, self).__init__(document)
+        self.settings = document.settings
+        lcode = self.settings.language_code
+        self.language = languages.get_language(lcode, document.reporter)
         self.doc = []
         self.section_level = 0
         self.list_depth = 0
@@ -154,6 +157,8 @@ class SILETranslator(nodes.NodeVisitor):
         self.section_level -= 1
 
     def visit_bullet_list(self, node):
+        # FIXME this resets lmargin so nesting lists in other things break
+        # alignments
         self.start_cmd(
             'set',
             parameter='document.lskip',
@@ -173,21 +178,13 @@ class SILETranslator(nodes.NodeVisitor):
     visit_enumerated_list = visit_bullet_list
     depart_enumerated_list = depart_bullet_list
 
-    def visit_block_quote(self, node):
-        s, t = css_to_sile(self.styles['blockquote'])
-        self.doc.append(s)
-        node._pending = t
+    visit_block_quote = apply_classes
 
     def depart_block_quote(self, node):
         self.doc.append('%s\n\n' % node._pending)
 
-    def visit_attribution(self, node):
-        s, t = css_to_sile(self.styles['attribution'])
-        self.doc.append(s)
-        node._pending = t
-
-    def depart_attribution(self, node):
-        self.doc.append(node._pending)
+    visit_attribution = apply_classes
+    depart_attribution = close_classes
 
     def visit_transition(self, node):
         # TODO: style
@@ -257,6 +254,67 @@ class SILETranslator(nodes.NodeVisitor):
     depart_topic = close_classes
     visit_reference = noop
     depart_reference = noop
+    visit_target = noop
+    depart_target = noop
+
+    visit_docinfo = noop
+    depart_docinfo = noop
+
+    def visit_docinfo_node(self, node, name):
+        self.doc.append(self.language.labels[name])
+        self.doc.append(name)
+        self.doc.append(node.astext())
+    def depart_docinfo_node(self, node):
+        pass
+
+    def visit_author(self, node):
+        self.visit_docinfo_node(node, 'author')
+    depart_author = depart_docinfo_node
+    def visit_version(self, node):
+        self.visit_docinfo_node(node, 'version')
+    depart_version = depart_docinfo_node
+    def visit_copyright(self, node):
+        self.visit_docinfo_node(node, 'copyright')
+    depart_copyright = depart_docinfo_node
+
+    def visit_admonition(self, node, name):
+        # TODO: handle specific classes like "note" or "warning"
+        s1, t1 = css_to_sile(self.styles['admonition'])
+        self.doc.append(s1)
+        if name:
+            s2, t2 = css_to_sile(self.styles['admonition-title'])
+            self.doc.append(s2)
+            self.doc.append(name)
+            self.doc.append(t2)
+        node._pending = t1
+
+    def visit_attention(self, node):
+        self.visit_admonition(node, 'Attention')
+    depart_attention = close_classes
+    def visit_caution(self, node):
+        self.visit_admonition(node, 'Caution')
+    depart_caution = close_classes
+    def visit_danger(self, node):
+        self.visit_admonition(node, 'Danger')
+    depart_danger = close_classes
+    def visit_error(self, node):
+        self.visit_admonition(node, 'Error')
+    depart_error = close_classes
+    def visit_hint(self, node):
+        self.visit_admonition(node, 'Hint')
+    depart_hint = close_classes
+    def visit_important(self, node):
+        self.visit_admonition(node, 'Important')
+    depart_important = close_classes
+    def visit_note(self, node):
+        self.visit_admonition(node, 'Note')
+    depart_note = close_classes
+    def visit_tip(self, node):
+        self.visit_admonition(node, 'Tip')
+    depart_tip = close_classes
+    def visit_warning(self, node):
+        self.visit_admonition(node, 'Warning')
+    depart_warning = close_classes
 
     def astext(self):
         return ''.join(self.doc)
