@@ -166,7 +166,7 @@ class SILETranslator(nodes.NodeVisitor):
 
     def visit_list_item(self, node):
         # TODO: move the bullet out of the text flow (see pullquote and rebox packages)
-        self.doc.append('%s ' % self.bullet_for_node(node))
+        self.doc.append('%s ' % bullet_for_node(node))
 
     depart_list_item = noop
 
@@ -261,42 +261,42 @@ class SILETranslator(nodes.NodeVisitor):
     def astext(self):
         return ''.join(self.doc)
 
-    # Originally from rst2pdf
-    def bullet_for_node(self, node):
-        """Takes a node, assumes it's some sort of
-           item whose parent is a list, and
-           returns the bullet text it should have"""
-        b = ""
-        t = 'item'
-        if node.parent.get('start'):
-            start = int(node.parent.get('start'))
-        else:
-            start = 1
+# Originally from rst2pdf
+def bullet_for_node(node):
+    """Takes a node, assumes it's some sort of
+        item whose parent is a list, and
+        returns the bullet text it should have"""
+    b = ""
+    t = 'item'
+    if node.parent.get('start'):
+        start = int(node.parent.get('start'))
+    else:
+        start = 1
 
-        if node.parent.get('bullet') or isinstance(node.parent,
-                                                   nodes.bullet_list):
-            b = node.parent.get('bullet', '*')
-            if b == "None":
-                b = ""
-            t = 'bullet'
+    if node.parent.get('bullet') or isinstance(node.parent,
+                                                nodes.bullet_list):
+        b = node.parent.get('bullet', '*')
+        if b == "None":
+            b = ""
+        t = 'bullet'
 
-        elif node.parent.get('enumtype') == 'arabic':
-            b = str(node.parent.children.index(node) + start) + '.'
+    elif node.parent.get('enumtype') == 'arabic':
+        b = str(node.parent.children.index(node) + start) + '.'
 
-        elif node.parent.get('enumtype') == 'lowerroman':
-            b = toRoman(node.parent.children.index(node) + start).lower() + '.'
-        elif node.parent.get('enumtype') == 'upperroman':
-            b = toRoman(node.parent.children.index(node) + start).upper() + '.'
-        elif node.parent.get('enumtype') == 'loweralpha':
-            b = string.lowercase[node.parent.children.index(node) +
-                                 start - 1] + '.'
-        elif node.parent.get('enumtype') == 'upperalpha':
-            b = string.uppercase[node.parent.children.index(node) +
-                                 start - 1] + '.'
-        else:
-            log.critical("Unknown kind of list_item %s [%s]", node.parent,
-                         nodeid(node))
-        return b
+    elif node.parent.get('enumtype') == 'lowerroman':
+        b = toRoman(node.parent.children.index(node) + start).lower() + '.'
+    elif node.parent.get('enumtype') == 'upperroman':
+        b = toRoman(node.parent.children.index(node) + start).upper() + '.'
+    elif node.parent.get('enumtype') == 'loweralpha':
+        b = string.lowercase[node.parent.children.index(node) +
+                                start - 1] + '.'
+    elif node.parent.get('enumtype') == 'upperalpha':
+        b = string.uppercase[node.parent.children.index(node) +
+                                start - 1] + '.'
+    else:
+        log.critical("Unknown kind of list_item %s [%s]", node.parent,
+                        nodeid(node))
+    return b
 
 
 def sile_quote(text):
