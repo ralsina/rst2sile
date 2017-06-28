@@ -32,7 +32,7 @@ class SILETranslator(nodes.NodeVisitor):
         rules = css_parser.parse_stylesheet_file('styles.css').rules
         styles = {}
         for rule in rules:
-            key = rule.selector.as_css().lower()
+            keys = [s.strip() for s in rule.selector.as_css().lower().split(',')]
             value = {}
             for dec in rule.declarations:
                 name = dec.name
@@ -40,7 +40,8 @@ class SILETranslator(nodes.NodeVisitor):
                 if name.startswith('font-'):
                     name = name[5:]
                 value[name] = dec.value.as_css()
-            styles[key] = value
+            for k in keys:
+                styles[k] = value
 
         self.styles = defaultdict(dict)
         self.styles.update(styles)

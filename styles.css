@@ -48,9 +48,10 @@ blockquote {
 
 /*Style for quote attributions*/
 
-attribution {
+attribution, .attribution{
     font-style: italic;
-    text-align: right
+    text-align: right;
+    margin-right: 100px;
 }
 
 
