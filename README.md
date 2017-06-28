@@ -1,2 +1,2 @@
 # rst2sile
-Use SILE to generate PDF from reSt
+Use [SILE](http://sile-typesetter.org) to generate PDF from reSt
