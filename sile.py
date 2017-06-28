@@ -70,6 +70,19 @@ class SILETranslator(nodes.NodeVisitor):
     def end_env(self, envname):
         self.doc.append('\\end{%s}\n\n' % envname)
 
+    def apply_classes(self, node):
+        start = ''
+        end = ''
+        for cl in node.get('classes', []):
+            s, e = css_to_sile(self.styles['.' + cl])
+            start +=s
+            end += e
+        self.doc.append(start)
+        node._pending = end
+
+    def close_classes(self, node):
+        self.doc.append(node._pending)
+
     def visit_document(self, node):
         # TODO Handle packages better
         self.doc.append('''\\begin[class=book]{document}
@@ -86,11 +99,14 @@ class SILETranslator(nodes.NodeVisitor):
     def depart_document(self, node):
         self.end_env('document')
 
-    def visit_paragraph(self, node):
-        pass
+    visit_paragraph = apply_classes
 
     def depart_paragraph(self, node):
+        self.close_classes(node)
         self.doc.append('\n\n')
+
+    visit_inline = apply_classes
+    depart_inline = close_classes
 
     def visit_Text(self, node):
         text = sile_quote(node.astext())
@@ -122,19 +138,6 @@ class SILETranslator(nodes.NodeVisitor):
 
     def depart_literal_block(self, node):
         self.end_env('verbatim')
-
-    def visit_inline(self, node):
-        start = ''
-        end = ''
-        for cl in node.get('classes', []):
-            s, e = css_to_sile(self.styles['.' + cl])
-            start +=s
-            end += e
-        self.doc.append(start)
-        node._pending = end
-
-    def depart_inline(self, node):
-        self.doc.append(node._pending)
 
     def visit_section(self, node):
         self.section_level += 1
