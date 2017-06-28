@@ -139,6 +139,21 @@ class SILETranslator(nodes.NodeVisitor):
     visit_enumerated_list = visit_bullet_list
     depart_enumerated_list = depart_bullet_list
 
+    def visit_block_quote(self, node):
+        self.start_cmd('set', parameter='document.lskip', value='36pt')
+        self.end_cmd()
+        self.start_cmd('font', **self.styles['blockquote'])
+    def depart_block_quote(self, node):
+        self.end_cmd()
+        self.doc.append('\n\n')
+
+    def visit_attribution(self, node):
+        self.start_cmd('font', **self.styles['attribution'])
+        self.start_env('raggedleft')
+    def depart_attribution(self, node):
+        self.end_env('raggedleft')
+        self.end_cmd()
+
     def visit_transition(self, node):
         # TODO: style
         self.doc.append('\n\n\hrule[width=80%pw, height=0.5pt]\n\n')
