@@ -21,6 +21,8 @@ class Writer(writers.Writer):
 def noop(self, node):
     pass
 
+def kill_node(self, node):
+    node.children = []
 
 class SILETranslator(nodes.NodeVisitor):
     def __init__(self, document):
@@ -74,8 +76,10 @@ class SILETranslator(nodes.NodeVisitor):
     def apply_classes(self, node):
         start = ''
         end = ''
-        for cl in node.get('classes', []):
-            s, e = css_to_sile(self.styles['.' + cl])
+        classes = ['.' + c for c in node.get('classes', [])]
+        classes.insert(0, node.__class__.__name__)
+        for cl in classes:
+            s, e = css_to_sile(self.styles[cl])
             start +=s
             end += e
         self.doc.append(start)
@@ -103,12 +107,8 @@ class SILETranslator(nodes.NodeVisitor):
         self.doc.append(node._pending)
         self.end_env('document')
 
-    def visit_paragraph(self, node):
-        s, t = css_to_sile(self.styles['p'])
-        self.doc.append(s)
-        self.apply_classes(node)
-        node._pending = t + node._pending
-    
+    visit_paragraph = apply_classes
+
     def depart_paragraph(self, node):
         self.close_classes(node)
         self.doc.append('\n\n')
@@ -197,24 +197,29 @@ class SILETranslator(nodes.NodeVisitor):
 
     def visit_title(self, node):
         # TODO: do sections as macros because the book class is too limited
-        if self.section_level == 0:  # Doc Title
-            self.doc.append('\\noindent')
-            self.start_cmd('font', **self.styles['title'])
+        # TODO: handle classes?
+        if isinstance(node.parent, nodes.topic):  # Topic title
+            s, t = css_to_sile(self.styles['topic-title'])
+            self.doc.append(s)
+            node._pending = t
+        elif self.section_level == 0:  # Doc Title
+            s, t = css_to_sile(self.styles['title'])
+            self.doc.append(s)
+            node._pending = t
         elif self.section_level == 1:
             self.start_cmd('chapter')
+            node._pending='}'
         elif self.section_level == 2:
             self.start_cmd('section')
+            node._pending='}'
         elif self.section_level == 3:
             self.start_cmd('subsection')
+            node._pending='}'
         else:
             raise Exception('Too deep')
 
     def depart_title(self, node):
-        self.end_cmd()
-        if self.section_level < 2:  # Doc Title
-            self.doc.append('\\bigskip')
-        else:
-            self.doc.append('\\medskip')
+        self.close_classes(node)
         self.doc.append('\n\n')
 
     def visit_subtitle(self, node):
@@ -223,12 +228,27 @@ class SILETranslator(nodes.NodeVisitor):
             self.start_cmd('font', **self.styles['subtitle'])
         else:
             raise Exception('Too deep')
-
     depart_subtitle = depart_title
 
-    def visit_comment(self, node):
-        node.children = []
+    visit_comment = kill_node
     depart_comment = noop
+
+    # TODO: implement headers/footers at some point
+    visit_decoration = kill_node
+    depart_decoration = noop
+
+    visit_figure = noop
+    depart_figure = noop
+    visit_image = noop
+    depart_image = noop
+
+    # TODO: implement raw SILE
+    visit_raw = kill_node
+    depart_raw = noop
+    visit_topic = apply_classes
+    depart_topic = close_classes
+    visit_reference = noop
+    depart_reference = noop
 
     def astext(self):
         return ''.join(self.doc)

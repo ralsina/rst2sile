@@ -5,16 +5,15 @@ body {
     size: 10pt;
 }
 
+
 /* Style for paragraphs */
-p {
-    text-indent: 10pt;
+
+paragraph {
+    text-indent: 0pt;
 }
+
 
 /*Style for the doc title*/
-
-.foo {
-    text-indent: -20pt;
-}
 
 title {
     size: 20pt;
@@ -30,6 +29,17 @@ subtitle {
 }
 
 
+/*Style for a topic title*/
+
+topic-title {
+    font-weight: 900;
+    text-indent: 0;
+}
+
+topic {
+    margin-left: 100pt;
+}
+
 /*Style for inline literals*/
 
 literal {
@@ -37,6 +47,7 @@ literal {
     language: und;
     color: red;
 }
+
 
 /*Style for literal blocks*/
 
