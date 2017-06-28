@@ -1,5 +1,5 @@
 body {
-    family: DejaVu;
+    family: DejaVu Sans;
     size: 10pt;
 }
 
@@ -8,7 +8,19 @@ title {
     weight: 900;
 }
 
+subtitle {
+    size: 15pt;
+    weight: 900;
+}
+
 literal {
     family: FreeMono;
     language: und;
+}
+
+verbatim {
+    family: FreeMono;
+}
+/*TODO: implement all classes for syntax highlighting*/
+.keyword {
 }

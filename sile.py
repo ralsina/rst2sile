@@ -38,20 +38,26 @@ class SILETranslator(nodes.NodeVisitor):
             styles[key] = value
 
         default = styles['body'].copy()
-        for k in styles:
-            v = {}
-            v.update(default)
-            v.update(styles[k])
-            styles[k] = v
+        # for k in styles:
+        #     v = {}
+        #     v.update(default)
+        #     v.update(styles[k])
+        #     styles[k] = v
 
-        self.styles = defaultdict(lambda: default)
+        self.styles = defaultdict(dict)
         self.styles.update(styles)
 
-    def start_cmd(self, envname, **kwargs):
+    def format_args(self, **kwargs):
         opts = ''
         if kwargs:
             opts = '[%s]' % ','.join('%s=%s' % (k,v) for k,v in kwargs.items())
-        self.doc.append('\\%s%s{' % (envname, opts))
+        return opts
+
+    def start_cmd(self, envname, **kwargs):
+        # TODO: handle font specially, since color and alignment are separate commands.
+        opts = self.format_args(**kwargs)
+        cmd = '\\%s%s{' % (envname, opts)
+        self.doc.append(cmd)
     def end_cmd(self, _=None):
         self.doc.append('}')
 
@@ -69,7 +75,9 @@ class SILETranslator(nodes.NodeVisitor):
         \\script[src=packages/verbatim]
         \\script[src=packages/pdf]
         \\script[src=packages/color]
-        ''')
+        \\define[command="verbatim:font"]{\\font%s}
+        \n\n''' % self.format_args(**self.styles['verbatim']))
+
     def depart_document(self, node):
         self.end_env('document')
 
@@ -102,10 +110,11 @@ class SILETranslator(nodes.NodeVisitor):
         self.end_env('verbatim')
 
     def visit_inline(self, node):
-        # TODO: implement class
-        pass
+        for cl in node.get('classes', []):
+            self.start_cmd('font', **self.styles['.' + cl])
     def depart_inline(self, node):
-        pass
+        for cl in node.get('classes', []):
+            self.end_cmd()
 
     def visit_section(self, node):
         self.section_level += 1
@@ -113,8 +122,9 @@ class SILETranslator(nodes.NodeVisitor):
         self.section_level -= 1
 
     def visit_title(self, node):
-        # TODO: do titles using class
+        # TODO: do sections as macros because the book class is too limited
         if self.section_level == 0:  # Doc Title
+            self.doc.append('\\noindent')
             self.start_cmd('font', **self.styles['title'])
         elif self.section_level == 1:
             self.start_cmd('chapter')
@@ -126,9 +136,18 @@ class SILETranslator(nodes.NodeVisitor):
             raise Exception('Too deep')
     def depart_title(self, node):
         self.end_cmd()
+        if self.section_level < 2:  # Doc Title
+            self.doc.append('\\bigskip')
+        else:
+            self.doc.append('\\medskip')
         self.doc.append('\n\n')
 
-    visit_subtitle = visit_title
+    def visit_subtitle(self, node):
+        if self.section_level == 0:  # Doc SubTitle
+            self.doc.append('\\noindent')
+            self.start_cmd('font', **self.styles['subtitle'])
+        else:
+            raise Exception('Too deep')
     depart_subtitle = depart_title
 
     def astext(self):
