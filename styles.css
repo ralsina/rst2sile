@@ -37,6 +37,11 @@ footnote {
     size: 10pt;
 }
 
+label {
+    family: DejaVu Sans;
+    size: 10pt;
+}
+
 
 /*Admonitions*/
 
