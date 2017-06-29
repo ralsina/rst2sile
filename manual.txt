@@ -123,7 +123,7 @@ Because yeech?
 
 Because FFS why would a human want to write HTML+CSS?
 
-**Why not reStructuredText and generate HTML and print to PDF?
+**Why not reStructuredText and generate HTML and print to PDF?**
 
 For the holy third left hand of Shiva, that is crazytalk.
 
