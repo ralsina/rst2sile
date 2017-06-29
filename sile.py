@@ -341,6 +341,9 @@ class SILETranslator(nodes.NodeVisitor):
         self.doc.append('.  ')
         self.close_classes(node)
 
+    visit_system_message = apply_classes
+    depart_system_message = close_classes
+
     def astext(self):
         return ''.join(self.doc)
 

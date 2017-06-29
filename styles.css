@@ -42,6 +42,11 @@ label {
     font-size: 10pt;
 }
 
+/*Style for docutils system messages*/
+system_message {
+    color: red;
+    font-weight: 900;
+}
 
 /*Admonitions*/
 
