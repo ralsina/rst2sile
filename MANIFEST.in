@@ -1,0 +1,2 @@
+include sile/packages/*.lua
+include sile/*.css

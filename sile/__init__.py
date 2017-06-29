@@ -1,12 +1,25 @@
 from collections import defaultdict
+import os
 import string
+import subprocess
+import tempfile
 
 from docutils import languages, nodes, writers
 from roman import toRoman
 import tinycss
 
+CSS_FILE = os.path.join(os.path.dirname(__file__), 'styles.css')
+SILE_PATH = os.path.dirname(__file__)
 
 class Writer(writers.Writer):
+
+    settings_spec = ('SILE-Specific Options', None, (
+        ('Specify the CSS files (comma separated).  Default is "%s".' %
+         CSS_FILE, ['--stylesheets'], {
+             'default': CSS_FILE,
+             'metavar': '<file>'
+         }), ))
+
     def __init__(self):
         super(Writer, self).__init__()
         self.translator_class = SILETranslator
@@ -35,24 +48,27 @@ class SILETranslator(nodes.NodeVisitor):
         self.section_level = 0
         self.list_depth = 0
         css_parser = tinycss.make_parser('page3')
-        rules = css_parser.parse_stylesheet_file('styles.css').rules
-        styles = {}
-        for rule in rules:
-            keys = [
-                s.strip() for s in rule.selector.as_css().lower().split(',')
-            ]
-            value = {}
-            for dec in rule.declarations:
-                name = dec.name
-                # CSS synonyms
-                if name.startswith('font-'):
-                    name = name[5:]
-                value[name] = dec.value.as_css()
-            for k in keys:
-                styles[k] = value
 
+        stylesheets = self.document.settings.stylesheets.split(',')
         self.styles = defaultdict(dict)
-        self.styles.update(styles)
+        for ssheet in stylesheets:
+            rules = css_parser.parse_stylesheet_file(ssheet).rules
+            styles = {}
+            for rule in rules:
+                keys = [
+                    s.strip()
+                    for s in rule.selector.as_css().lower().split(',')
+                ]
+                value = {}
+                for dec in rule.declarations:
+                    name = dec.name
+                    # CSS synonyms
+                    if name.startswith('font-'):
+                        name = name[5:]
+                    value[name] = dec.value.as_css()
+                for k in keys:
+                    styles[k] = value
+            self.styles.update(styles)
 
     def start_cmd(self, envname, **kwargs):
         opts = format_args(**kwargs)
@@ -100,7 +116,9 @@ class SILETranslator(nodes.NodeVisitor):
         \\set[parameter=document.parskip,value=12pt]
         \\set[parameter=document.parindent,value=0pt]
         %s
-        \n\n''' % (format_args(**self.styles['verbatim']), head))
+        \n\n''' % (
+            format_args(**self.styles['verbatim']), 
+            head))
         node.pending_tail = tail
 
     def depart_document(self, node):
@@ -402,7 +420,12 @@ class SILETranslator(nodes.NodeVisitor):
     depart_system_message = close_classes
 
     def astext(self):
-        return ''.join(self.doc)
+        with tempfile.NamedTemporaryFile('w') as sil_file:
+            sil_file.write(''.join(self.doc))
+            pdf_path = sil_file.name + '.pdf'
+            subprocess.check_call(['sile', sil_file.name, '-o', pdf_path], env={'SILE_PATH': SILE_PATH})
+        with open(pdf_path, 'rb') as pdf_file:
+            return pdf_file.read()
 
     visit_definition_list = noop
     depart_definition_list = noop
