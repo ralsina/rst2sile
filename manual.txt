@@ -8,7 +8,7 @@ Or: there has to be a better way instead of me having to redo this crap every te
 
 :Author: Roberto Alsina
 :Version: 0.1
-:Date: JUne 30 2017
+:Date: June 30, 2017
 
 .. contents::
 

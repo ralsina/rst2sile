@@ -88,7 +88,6 @@ topic {
 literal {
     family: FreeMono;
     language: und;
-    color: red;
 }
 
 
@@ -99,6 +98,28 @@ verbatim {
     language: und;
 }
 
+/*Style for docinfo and item lists*/
+
+docinfo, field_list {
+    text-align: left;
+    margin-left: 10%fw;
+}
+
+field_name {
+    font-weight: 900;
+    text-indent: -2em;
+}
+
+/*Styles for definition lists*/
+
+term {
+    font-weight: 900;
+    text-indent: -2em;
+}
+
+definition {
+    margin-left: 5em;
+}
 
 /*Style for block quote body text*/
 

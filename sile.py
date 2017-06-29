@@ -240,12 +240,29 @@ class SILETranslator(nodes.NodeVisitor):
     visit_topic = apply_classes
     depart_topic = close_classes
 
+    visit_docinfo = apply_classes
+    depart_docinfo = close_classes
     def visit_docinfo_node(self, node, name):
+        # FIXME: classes are not right
         self.doc.append(self.language.labels[name])
-        self.doc.append(name)
-        self.doc.append(node.astext())
+        self.doc.append(': ')
+        self.doc.append(node.astext() + '\\break ')
+        raise nodes.SkipNode
     def depart_docinfo_node(self, node):
         pass
+
+    # FIXME: text alignments are tricky
+    visit_field_list = apply_classes
+    depart_field_list = close_classes
+    visit_field = apply_classes
+    depart_field = close_classes
+
+    visit_field_name = apply_classes
+    def depart_field_name(self, node):
+        self.doc.append(': ')
+        self.close_classes(node)
+    visit_field_body = apply_classes
+    depart_field_body = close_classes
 
     def visit_author(self, node):
         self.visit_docinfo_node(node, 'author')
@@ -323,25 +340,28 @@ class SILETranslator(nodes.NodeVisitor):
     def astext(self):
         return ''.join(self.doc)
 
+    visit_definition_list = noop
+    depart_definition_list = noop
+    visit_definition_list_item = noop
+    depart_definition_list_item = noop
+    visit_definition = apply_classes
+    depart_definition = close_classes
+    visit_term = apply_classes
+    def depart_term(self, node):
+        self.close_classes(node)
+        self.doc.append('\\break ')
+
+
     # TODO: all these
     visit_reference = noop
     depart_reference = noop
     visit_target = noop
     depart_target = noop
-    visit_docinfo = noop
-    depart_docinfo = noop
     visit_figure = noop
     depart_figure = noop
     visit_image = noop
     depart_image = noop
-    visit_definition_list = noop
-    depart_definition_list = noop
-    visit_definition_list_item = noop
-    depart_definition_list_item = noop
-    visit_definition = noop
-    depart_definition = noop
-    visit_term = noop
-    depart_term = noop
+
 
 
 # Originally from rst2pdf
