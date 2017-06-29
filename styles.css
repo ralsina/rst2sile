@@ -26,6 +26,17 @@ sidebar-title {
     text-align: right;
 }
 
+/*Styles for footnotes*/
+
+footnote_reference {
+    font-size: 0.7em;
+}
+
+footnote {
+    family: DejaVu Sans;
+    size: 10pt;
+}
+
 
 /*Admonitions*/
 

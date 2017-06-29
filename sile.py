@@ -305,6 +305,27 @@ class SILETranslator(nodes.NodeVisitor):
         self.visit_admonition(node, 'Warning')
     depart_warning = close_classes
 
+    # TODO: links, footnote refs have a bad left-space
+    def visit_footnote_reference(self, node):
+        self.start_cmd('raise', height='.5em')
+        self.apply_classes(node)
+    def depart_footnote_reference(self, node):
+        self.end_cmd()
+        self.close_classes(node)
+
+    def visit_footnote(self, node):
+        self.start_cmd('footnote')
+        self.apply_classes(node)
+    def depart_footnote(self, node):
+        self.end_cmd()
+        self.close_classes(node)
+    
+    def visit_label(self, node):
+        self.apply_classes(node)
+    def depart_label(self, node):
+        self.doc.append('.  ')
+        self.close_classes(node)
+
     def astext(self):
         return ''.join(self.doc)
 
@@ -327,12 +348,6 @@ class SILETranslator(nodes.NodeVisitor):
     depart_definition = noop
     visit_term = noop
     depart_term = noop
-    visit_label = noop
-    depart_label = noop
-    visit_footnote = noop
-    depart_footnote = noop
-    visit_footnote_reference = noop
-    depart_footnote_reference = noop
 
 
 # Originally from rst2pdf
