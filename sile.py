@@ -250,6 +250,9 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_author(self, node):
         self.visit_docinfo_node(node, 'author')
     depart_author = depart_docinfo_node
+    def visit_date(self, node):
+        self.visit_docinfo_node(node, 'date')
+    depart_version = depart_docinfo_node
     def visit_version(self, node):
         self.visit_docinfo_node(node, 'version')
     depart_version = depart_docinfo_node
