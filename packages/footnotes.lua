@@ -73,6 +73,12 @@ end)
 
 return {
   init = function (class, args)
+    local simpletable = SILE.require("packages/simpletable")
+            simpletable.init(SILE.documentState.documentClass, {
+            tableTag = "table",
+            trTag = "tr",
+            tdTag = "td"
+            })
     insertions.exports:initInsertionClass("footnote", {
     insertInto = args.insertInto,
     stealFrom = args.stealFrom,
