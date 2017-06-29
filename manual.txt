@@ -24,8 +24,7 @@ much easier to generate than LaTeX, and is quite hackable in a semi-reasonable
 language (Lua). Really, SILE is a gem, and it worries me that it seems nobody
 has heard of it.
 
-So, ``rst2sile`` eats a ``.rst`` file, and spits out a ``.sil`` file, which you
-feed to SILE and you end up with a PDF.
+So, ``rst2sile`` eats a ``.rst`` file, and spits out a ``.pdf`` file, generated via SILE.
 
 Is it production ready?
 -----------------------
@@ -50,7 +49,7 @@ How to use it?
 
 Basic usage::
 
-   rst2sile foo.rst foo.sil ; sile foo.sil
+   rst2sile foo.rst foo.pdf
 
 Not so basic usage::
 
@@ -59,8 +58,9 @@ Not so basic usage::
 How do I style the output?
 --------------------------
 
-With the goal of making it as easy as possible to customize, rst2sile supports a 
-subset of CSS.
+With the goal of making it as easy as possible to customize, rst2sile supports a
+subset of CSS. By default it will use an included ``styles.css`` but you can use
+custom ones via the ``--stylesheets`` option.
 
 * It only supports "," as a selector connector. So this works::
 
