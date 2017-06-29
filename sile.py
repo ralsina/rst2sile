@@ -142,6 +142,7 @@ class SILETranslator(nodes.NodeVisitor):
     depart_strong = end_cmd
 
     def visit_literal_block(self, _):
+        # FIXME: this has horrible vertical separations
         self.start_env('verbatim')
 
     def depart_literal_block(self, _):
@@ -169,7 +170,12 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_list_item(self, node):
         # TODO: move the bullet out of the text
         # flow (see pullquote and rebox packages)
-        self.doc.append('%s ' % bullet_for_node(node))
+        bullet = bullet_for_node(node)
+
+        if bullet in '*+-':
+            # FIXME: use different unicode bullets
+            bullet = '\u2022'
+        self.doc.append('%s ' % bullet)
 
     depart_list_item = noop
 
@@ -191,7 +197,6 @@ class SILETranslator(nodes.NodeVisitor):
     depart_transition = noop
 
     def add_target(self, id):
-        print('target==> ', id)
         self.start_cmd('pdf:destination', name=id)
         self.end_cmd()
 
@@ -441,10 +446,8 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_reference(self, node):
         self.apply_classes(node)
         if 'refuri' in node:
-            print('ref==> ', node['refuri'])
             self.start_cmd('href', src=node['refuri'])
         else:
-            print('ref==> ', node['refid'])
             self.start_cmd('pdf:link', dest=node['refid'])
 
     def depart_reference(self, node):
