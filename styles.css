@@ -28,11 +28,11 @@ sidebar-title {
 
 /*Styles for footnotes*/
 
-footnote_reference {
+footnote_reference, citation_reference {
     font-size: 0.7em;
 }
 
-footnote {
+footnote, citation {
     family: DejaVu Sans;
     size: 10pt;
 }

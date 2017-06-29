@@ -323,6 +323,8 @@ class SILETranslator(nodes.NodeVisitor):
     def depart_footnote_reference(self, node):
         self.end_cmd()
         self.close_classes(node)
+    visit_citation_reference = visit_footnote_reference
+    depart_citation_reference = depart_footnote_reference
 
     def visit_footnote(self, node):
         self.start_cmd('footnote')
@@ -330,6 +332,8 @@ class SILETranslator(nodes.NodeVisitor):
     def depart_footnote(self, node):
         self.end_cmd()
         self.close_classes(node)
+    visit_citation = visit_footnote
+    depart_citation = depart_footnote
 
     def visit_label(self, node):
         self.apply_classes(node)
@@ -352,6 +356,26 @@ class SILETranslator(nodes.NodeVisitor):
         self.doc.append('\\break ')
 
 
+    # FIXME: Either SILE simpletable is very broken or this code is.
+    def visit_option_list(self, node):
+        self.start_cmd('table')
+    depart_option_list = end_cmd
+    visit_option_group = noop
+    depart_option_group = noop
+    def visit_option(self, node):
+        self.start_cmd('td')
+    depart_option = end_cmd
+    visit_option_string = noop
+    depart_option_string = noop
+    def visit_description(self, node):
+        self.start_cmd('td')
+    depart_description = end_cmd
+    visit_option_argument = noop
+    depart_option_argument = noop
+    def visit_option_list_item(self, node):
+        self.start_cmd('tr')
+    depart_option_list_item = end_cmd
+
     # TODO: all these
     visit_reference = noop
     depart_reference = noop
@@ -361,7 +385,6 @@ class SILETranslator(nodes.NodeVisitor):
     depart_figure = noop
     visit_image = noop
     depart_image = noop
-
 
 
 # Originally from rst2pdf
