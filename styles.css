@@ -1,8 +1,8 @@
 /*General style for the document*/
 
 body {
-    family: DejaVu Sans;
-    size: 10pt;
+    font-family: DejaVu Sans;
+    font-size: 10pt;
 }
 
 
@@ -38,8 +38,8 @@ footnote {
 }
 
 label {
-    family: DejaVu Sans;
-    size: 10pt;
+    font-family: DejaVu Sans;
+    font-size: 10pt;
 }
 
 
@@ -66,7 +66,7 @@ title {
 /*Style for the doc subtitle*/
 
 subtitle {
-    size: 15pt;
+    font-size: 15pt;
     font-weight: 900;
 }
 
