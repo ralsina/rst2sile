@@ -1,4 +1,5 @@
 from collections import defaultdict
+import string
 
 from docutils import languages, nodes, writers
 from roman import toRoman
@@ -225,9 +226,7 @@ class SILETranslator(nodes.NodeVisitor):
 
     def visit_subtitle(self, node):
         if self.section_level == 0:  # Doc SubTitle
-            s, t = css_to_sile(self.styles['subtitle'])
-            self.doc.append(s)
-            node._pending = t
+            self.apply_classes(node)
         else:
             raise Exception('Too deep')
     depart_subtitle = depart_title
@@ -242,23 +241,13 @@ class SILETranslator(nodes.NodeVisitor):
     visit_decoration = kill_node
     depart_decoration = noop
 
-    visit_figure = noop
-    depart_figure = noop
-    visit_image = noop
-    depart_image = noop
 
     # TODO: implement raw SILE
     visit_raw = kill_node
     depart_raw = noop
+
     visit_topic = apply_classes
     depart_topic = close_classes
-    visit_reference = noop
-    depart_reference = noop
-    visit_target = noop
-    depart_target = noop
-
-    visit_docinfo = noop
-    depart_docinfo = noop
 
     def visit_docinfo_node(self, node, name):
         self.doc.append(self.language.labels[name])
@@ -319,6 +308,33 @@ class SILETranslator(nodes.NodeVisitor):
     def astext(self):
         return ''.join(self.doc)
 
+    # TODO: all these
+    visit_reference = noop
+    depart_reference = noop
+    visit_target = noop
+    depart_target = noop
+    visit_docinfo = noop
+    depart_docinfo = noop
+    visit_figure = noop
+    depart_figure = noop
+    visit_image = noop
+    depart_image = noop
+    visit_definition_list = noop
+    depart_definition_list = noop
+    visit_definition_list_item = noop
+    depart_definition_list_item = noop
+    visit_definition = noop
+    depart_definition = noop
+    visit_term = noop
+    depart_term = noop
+    visit_label = noop
+    depart_label = noop
+    visit_footnote = noop
+    depart_footnote = noop
+    visit_footnote_reference = noop
+    depart_footnote_reference = noop
+
+
 # Originally from rst2pdf
 def bullet_for_node(node):
     """Takes a node, assumes it's some sort of
@@ -346,10 +362,10 @@ def bullet_for_node(node):
     elif node.parent.get('enumtype') == 'upperroman':
         b = toRoman(node.parent.children.index(node) + start).upper() + '.'
     elif node.parent.get('enumtype') == 'loweralpha':
-        b = string.lowercase[node.parent.children.index(node) +
+        b = string.ascii_lowercase[node.parent.children.index(node) +
                                 start - 1] + '.'
     elif node.parent.get('enumtype') == 'upperalpha':
-        b = string.uppercase[node.parent.children.index(node) +
+        b = string.ascii_uppercase[node.parent.children.index(node) +
                                 start - 1] + '.'
     else:
         log.critical("Unknown kind of list_item %s [%s]", node.parent,
