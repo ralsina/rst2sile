@@ -39,7 +39,7 @@ footnote_reference, citation_reference {
 }
 
 footnote, citation {
-    family: DejaVu Sans;
+    font-family: DejaVu Sans;
     size: 10pt;
 }
 
@@ -97,7 +97,7 @@ topic {
 /*Style for inline literals*/
 
 literal {
-    family: FreeMono;
+    font-family: FreeMono;
     language: und;
 }
 
@@ -105,7 +105,7 @@ literal {
 /*Style for literal blocks*/
 
 verbatim {
-    family: FreeMono;
+    font-family: FreeMono;
     language: und;
 }
 

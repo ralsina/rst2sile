@@ -20,8 +20,10 @@ class Writer(writers.Writer):
 def noop(*_):
     pass
 
+
 def kill_node(*_):
     raise nodes.SkipNode
+
 
 class SILETranslator(nodes.NodeVisitor):
     def __init__(self, document):
@@ -36,7 +38,9 @@ class SILETranslator(nodes.NodeVisitor):
         rules = css_parser.parse_stylesheet_file('styles.css').rules
         styles = {}
         for rule in rules:
-            keys = [s.strip() for s in rule.selector.as_css().lower().split(',')]
+            keys = [
+                s.strip() for s in rule.selector.as_css().lower().split(',')
+            ]
             value = {}
             for dec in rule.declarations:
                 name = dec.name
@@ -163,7 +167,8 @@ class SILETranslator(nodes.NodeVisitor):
         self.list_depth -= 1
 
     def visit_list_item(self, node):
-        # TODO: move the bullet out of the text flow (see pullquote and rebox packages)
+        # TODO: move the bullet out of the text
+        # flow (see pullquote and rebox packages)
         self.doc.append('%s ' % bullet_for_node(node))
 
     depart_list_item = noop
@@ -221,6 +226,7 @@ class SILETranslator(nodes.NodeVisitor):
             self.apply_classes(node)
         else:
             raise Exception('Too deep')
+
     depart_subtitle = depart_title
 
     visit_comment = kill_node
@@ -233,7 +239,6 @@ class SILETranslator(nodes.NodeVisitor):
     visit_decoration = kill_node
     depart_decoration = noop
 
-
     # TODO: implement raw SILE
     visit_raw = kill_node
     depart_raw = noop
@@ -243,12 +248,14 @@ class SILETranslator(nodes.NodeVisitor):
 
     visit_docinfo = apply_classes
     depart_docinfo = close_classes
+
     def visit_docinfo_node(self, node, name):
         # FIXME: classes are not right
         self.doc.append(self.language.labels[name])
         self.doc.append(': ')
         self.doc.append(node.astext() + '\\break ')
         raise nodes.SkipNode
+
     def depart_docinfo_node(self, node):
         pass
 
@@ -259,23 +266,32 @@ class SILETranslator(nodes.NodeVisitor):
     depart_field = close_classes
 
     visit_field_name = apply_classes
+
     def depart_field_name(self, node):
         self.doc.append(': ')
         self.close_classes(node)
+
     visit_field_body = apply_classes
     depart_field_body = close_classes
 
     def visit_author(self, node):
         self.visit_docinfo_node(node, 'author')
+
     depart_author = depart_docinfo_node
+
     def visit_date(self, node):
         self.visit_docinfo_node(node, 'date')
+
     depart_date = depart_docinfo_node
+
     def visit_version(self, node):
         self.visit_docinfo_node(node, 'version')
+
     depart_version = depart_docinfo_node
+
     def visit_copyright(self, node):
         self.visit_docinfo_node(node, 'copyright')
+
     depart_copyright = depart_docinfo_node
 
     def visit_admonition(self, node, name):
@@ -291,53 +307,75 @@ class SILETranslator(nodes.NodeVisitor):
 
     def visit_attention(self, node):
         self.visit_admonition(node, 'Attention')
+
     depart_attention = close_classes
+
     def visit_caution(self, node):
         self.visit_admonition(node, 'Caution')
+
     depart_caution = close_classes
+
     def visit_danger(self, node):
         self.visit_admonition(node, 'Danger')
+
     depart_danger = close_classes
+
     def visit_error(self, node):
         self.visit_admonition(node, 'Error')
+
     depart_error = close_classes
+
     def visit_hint(self, node):
         self.visit_admonition(node, 'Hint')
+
     depart_hint = close_classes
+
     def visit_important(self, node):
         self.visit_admonition(node, 'Important')
+
     depart_important = close_classes
+
     def visit_note(self, node):
         self.visit_admonition(node, 'Note')
+
     depart_note = close_classes
+
     def visit_tip(self, node):
         self.visit_admonition(node, 'Tip')
+
     depart_tip = close_classes
+
     def visit_warning(self, node):
         self.visit_admonition(node, 'Warning')
+
     depart_warning = close_classes
 
     # TODO: links, footnote refs have a bad left-space
     def visit_footnote_reference(self, node):
         self.start_cmd('raise', height='.5em')
         self.apply_classes(node)
+
     def depart_footnote_reference(self, node):
         self.end_cmd()
         self.close_classes(node)
+
     visit_citation_reference = visit_footnote_reference
     depart_citation_reference = depart_footnote_reference
 
     def visit_footnote(self, node):
         self.start_cmd('footnote')
         self.apply_classes(node)
+
     def depart_footnote(self, node):
         self.end_cmd()
         self.close_classes(node)
+
     visit_citation = visit_footnote
     depart_citation = depart_footnote
 
     def visit_label(self, node):
         self.apply_classes(node)
+
     def depart_label(self, node):
         self.doc.append('.  ')
         self.close_classes(node)
@@ -355,29 +393,36 @@ class SILETranslator(nodes.NodeVisitor):
     visit_definition = apply_classes
     depart_definition = close_classes
     visit_term = apply_classes
+
     def depart_term(self, node):
         self.close_classes(node)
         self.doc.append('\\break ')
 
-
     # FIXME: Either SILE simpletable is very broken or this code is.
-    def visit_option_list(self, node):
+    def visit_option_list(self, _):
         self.start_cmd('table')
+
     depart_option_list = end_cmd
     visit_option_group = noop
     depart_option_group = noop
-    def visit_option(self, node):
+
+    def visit_option(self, _):
         self.start_cmd('td')
+
     depart_option = end_cmd
     visit_option_string = noop
     depart_option_string = noop
-    def visit_description(self, node):
+
+    def visit_description(self, _):
         self.start_cmd('td')
+
     depart_description = end_cmd
     visit_option_argument = noop
     depart_option_argument = noop
-    def visit_option_list_item(self, node):
+
+    def visit_option_list_item(self, _):
         self.start_cmd('tr')
+
     depart_option_list_item = end_cmd
 
     def visit_reference(self, node):
@@ -386,15 +431,18 @@ class SILETranslator(nodes.NodeVisitor):
             self.start_cmd('href', src=node['refuri'])
         else:
             self.start_cmd('pdf:link', dest=node['refid'])
+
     def depart_reference(self, node):
         self.end_cmd()
         self.close_classes(node)
 
-    def debug(self, node):
-        import pdb; pdb.set_trace()
+    def debug(self, *a, **kw):
+        import pdb
+        pdb.set_trace()
 
     def visit_target(self, node):
         self.start_cmd('pdf:destination', name=node['refid'])
+
     depart_target = end_cmd
 
     # TODO: all these
@@ -402,6 +450,7 @@ class SILETranslator(nodes.NodeVisitor):
     depart_figure = noop
     visit_image = noop
     depart_image = noop
+
 
 # Originally from rst2pdf
 def bullet_for_node(node):
@@ -414,12 +463,10 @@ def bullet_for_node(node):
     else:
         start = 1
 
-    if node.parent.get('bullet') or isinstance(node.parent,
-                                               nodes.bullet_list):
+    if node.parent.get('bullet') or isinstance(node.parent, nodes.bullet_list):
         b = node.parent.get('bullet', '*')
         if b == "None":
             b = ""
-        t = 'bullet'
 
     elif node.parent.get('enumtype') == 'arabic':
         b = str(node.parent.children.index(node) + start) + '.'
@@ -436,8 +483,7 @@ def bullet_for_node(node):
                                    start - 1] + '.'
     else:
         # FIXME log
-        print("Unknown kind of list_item %s [%s]" % (node.parent,
-                     node))
+        print("Unknown kind of list_item %s [%s]" % (node.parent, node))
     return b
 
 
@@ -455,7 +501,9 @@ def css_to_sile(style):
     """Given a CSS-like style, create a SILE environment."""
 
     font_keys = {'script', 'language', 'style', 'weight', 'family', 'size'}
-    margin_keys = {'margin-left', 'margin-right', 'margin-top', 'margin-bottom'}
+    margin_keys = {
+        'margin-left', 'margin-right', 'margin-top', 'margin-bottom'
+    }
 
     keys = set(style.keys())
     has_font = bool(keys.intersection(font_keys))
@@ -482,10 +530,12 @@ def css_to_sile(style):
 
     if has_margin:
         if 'margin-right' in keys:
-            start += '\\set[parameter=document.rskip,value=%s]' % style['margin-right']
+            start += '\\set[parameter=document.rskip,value=%s]' % style[
+                'margin-right']
             trailer = '\\set[parameter=document.rskip,value=0]' + trailer
         if 'margin-left' in keys:
-            start += '\\set[parameter=document.lskip,value=%s]' % style['margin-left']
+            start += '\\set[parameter=document.lskip,value=%s]' % style[
+                'margin-left']
             trailer = '\\set[parameter=document.lskip,value=0]' + trailer
         if 'margin-top' in keys:
             start += '\\skip[height=%s]' % style['margin-top']
@@ -493,9 +543,10 @@ def css_to_sile(style):
             trailer = '\\skip[height=%s]' % style['margin-bottom'] + trailer
 
     if has_font:
-        opts = ','.join('%s=%s' % (k, style[k]) for k in font_keys if k in style)
-        s = '\\font[%s]{' % opts
-        start += s
+        opts = ','.join('%s=%s' % (k, style[k]) for k in font_keys
+                        if k in style)
+        head = '\\font[%s]{' % opts
+        start += head
         trailer = '}' + trailer
 
     if has_color:
@@ -503,13 +554,14 @@ def css_to_sile(style):
         trailer = '}' + trailer
 
     if has_indent:
-        start += '\\set[parameter=document.parindent,value=%s]' % style['text-indent']
+        start += '\\set[parameter=document.parindent,value=%s]' % style[
+            'text-indent']
 
     return start, trailer
+
 
 def format_args(**kwargs):
     opts = ''
     if kwargs:
-        opts = '[%s]' % ','.join('%s=%s' % (k, v)
-                                 for k, v in kwargs.items())
+        opts = '[%s]' % ','.join('%s=%s' % (k, v) for k, v in kwargs.items())
     return opts

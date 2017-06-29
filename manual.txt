@@ -17,14 +17,20 @@ What is rst2SILE?
 
 It's a command to convert reStructuredText to PDFs via `SILE. <http://sile-typesetter.org>`__
 
-Frustrated with the reliance on LaTeX exhibited by most other PDF-from-markup tools, I googled
-for some modern alternatives, and found SILE. Not only does it produce quality output, but you
-can learn most of it in a couple of hours, is much easier to generate than LaTeX, and is
-quite hackable in a semi-reasonable language (Lua). Really, SILE is a gem, and it worries me
-that it seems nobody has heard of it.
+Frustrated with the reliance on LaTeX exhibited by most other PDF-from-markup
+tools, I googled for some modern alternatives, and found SILE. Not only does it
+produce quality output, but you can learn most of it in a couple of hours, is
+much easier to generate than LaTeX, and is quite hackable in a semi-reasonable
+language (Lua). Really, SILE is a gem, and it worries me that it seems nobody
+has heard of it.
 
-So, ``rst2sile`` eats a ``.rst`` file, and spits out a ``.sil`` file, which you feed to SILE
-and you end up with a PDF.
+So, ``rst2sile`` eats a ``.rst`` file, and spits out a ``.sil`` file, which you
+feed to SILE and you end up with a PDF.
+
+Is it production ready?
+-----------------------
+
+Hell no.
 
 How to use it?
 --------------
@@ -40,7 +46,8 @@ Not so basic usage::
 How do I style the output?
 --------------------------
 
-With the goal of making it as easy as possible to customize, rst2sile supports a subset of CSS.
+With the goal of making it as easy as possible to customize, rst2sile supports a 
+subset of CSS.
 
 * It only supports "," as a selector connector. So this works::
 
@@ -53,10 +60,11 @@ With the goal of making it as easy as possible to customize, rst2sile supports a
 
 * It supports element selectors (all listed in the provided styles.css)
 * It supports class selectors
-* It doesn't support margins for inline elements such as classes in roles, or syntax highlight.
-* Sizes, such as ``font-size`` or ``margin-top`` can be expressed in the usual units but instead of "%"
-  it's recommended to use "%fw / %fh" (percentage of frame width/height) "%pw / %ph" (percentage of 
-  page width/height)
+* It doesn't support margins for inline elements such as classes in roles,
+  or in syntax highlight.
+* Sizes, such as ``font-size`` or ``margin-top`` can be expressed in the usual
+  units but instead of "%" it's recommended to use "%fw / %fh" (percentage of frame
+  width/height) "%pw / %ph" (percentage of page width/height)
 * It only supports the following properties:
 
   * font-family
@@ -73,18 +81,32 @@ With the goal of making it as easy as possible to customize, rst2sile supports a
   * script (for hyphenation and layout)
   * color
 
+Known Issues
+------------
+
+* No tables.
+* Footnotes/Citations are not hyperlinked.
+* TOC is lame
+* Lists reset left margin. This means nesting them inside other elements breaks things.
+* Styling is limited
+* No support for page/frameset configuration yet
+
+And surely much more.
+
 Motivation, in the form of exasperated Q&A
 ------------------------------------------
 
 **What do I want?**
 
-I want to be able to write docs using some reasonable markup (like reStructuredText) and produce
-a PDF while being able to configure things like fonts and page layout.
+I want to be able to write docs using some reasonable markup (like
+reStructuredText) and produce a PDF while being able to configure things like
+fonts and page layout. And world peace, but the PDF thing first.
 
 **Why PDF?**
 
-Because it's a format where I control the layout, and as long as anyone can open it I can trust that
-he will see it in a reasonable manner.
+Because it's a format where I control the layout, and as long as anyone can
+open it I can trust that he will see it in a reasonable manner with the right
+font and so on.
 
 **Why not (whatever other format)?**
 
@@ -96,8 +118,8 @@ Probably because:
 
 **Why not use rst2latex.py?**
 
-Because it uses LaTex and as soon as I want to do something *crazy* like changing the font (whoa) or
-the paper size (whoohoo) I need to learn LaTex.
+Because it uses LaTex and as soon as I want to do something *crazy* like
+changing the font (woah) or the paper size (woohoo) I need to learn LaTex.
 
 **Why not pandoc?**
 
@@ -113,7 +135,8 @@ Because it's too limited.
 
 **Why not pandoc with markdown?**
 
-Because it's LaTeX **and** markdown.
+Because it's LaTeX **and** markdown, and it's like trying to blow your foot off
+using a large number of very small firecrackers.
 
 **Why not LibreOffice and print to a PDF?**
 
@@ -121,7 +144,8 @@ Because yeech?
 
 **Why not HTML+CSS and print to a PDF?**
 
-Because FFS why would a human want to write HTML+CSS?
+Because why would a human want to write HTML+CSS? And then I have to put the
+CSS in the HTML or else the recipient has to save two files.
 
 **Why not reStructuredText and generate HTML and print to PDF?**
 
@@ -129,16 +153,18 @@ For the holy third left hand of Shiva, that is crazytalk.
 
 **Why not rst2pdf?**
 
-Well, glad you ask! Because I wrote it 10 years ago and I can't believe it's still, after years of becoming
-abandonware, still one of the easiest ways to turn markup into PDFs without having to install 700MB of obscure
-1980s code to implement **another different more complicated markup.**
+Well, glad you ask! Because I wrote it 10 years ago and I can't believe it's
+still, after years of becoming abandonware, still one of the easiest ways to
+turn markup into PDFs without having to install 700MB of obscure 1980s code to
+implement **another different more complicated markup.**
 
-Also, because I have become a much better programmer over the last 10 years, and therefore it *pains* me to see
-all the problems rst2pdf has.
+Also, because I have become a much better programmer over the last 10 years,
+and therefore it *pains* me to see all the problems rst2pdf has.
 
 **So, what do you want to use, smartass?**
 
-I want to use something that, apparently, doesn't exist. Therefore, I wrote this **new** piece of software.
+I want to use something that, apparently, doesn't exist. Therefore, I wrote
+this **new** piece of software.
 
 License
 -------
