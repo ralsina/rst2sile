@@ -20,7 +20,8 @@ It's a command to convert reStructuredText to PDFs via `SILE. <http://sile-types
 Frustrated with the reliance on LaTeX exhibited by most other PDF-from-markup tools, I googled
 for some modern alternatives, and found SILE. Not only does it produce quality output, but you
 can learn most of it in a couple of hours, is much easier to generate than LaTeX, and is
-quite hackable in a semi-reasonable language (Lua).
+quite hackable in a semi-reasonable language (Lua). Really, SILE is a gem, and it worries me
+that it seems nobody has heard of it.
 
 So, ``rst2sile`` eats a ``.rst`` file, and spits out a ``.sil`` file, which you feed to SILE
 and you end up with a PDF.
