@@ -7,8 +7,6 @@ import tinycss
 
 
 class Writer(writers.Writer):
-    pass
-
     def __init__(self):
         super(Writer, self).__init__()
         self.translator_class = SILETranslator
@@ -19,10 +17,10 @@ class Writer(writers.Writer):
         self.output = visitor.astext()
 
 
-def noop(self, node):
+def noop(*_):
     pass
 
-def kill_node(self, node):
+def kill_node(*_):
     raise nodes.SkipNode
 
 class SILETranslator(nodes.NodeVisitor):
@@ -52,15 +50,8 @@ class SILETranslator(nodes.NodeVisitor):
         self.styles = defaultdict(dict)
         self.styles.update(styles)
 
-    def format_args(self, **kwargs):
-        opts = ''
-        if kwargs:
-            opts = '[%s]' % ','.join('%s=%s' % (k, v)
-                                     for k, v in kwargs.items())
-        return opts
-
     def start_cmd(self, envname, **kwargs):
-        opts = self.format_args(**kwargs)
+        opts = format_args(**kwargs)
         cmd = '\\%s%s{' % (envname, opts)
         self.doc.append(cmd)
 
@@ -82,19 +73,19 @@ class SILETranslator(nodes.NodeVisitor):
         end = ''
         classes = ['.' + c for c in node.get('classes', [])]
         classes.insert(0, node.__class__.__name__)
-        for cl in classes:
-            s, e = css_to_sile(self.styles[cl])
-            start +=s
-            end += e
+        for classname in classes:
+            head, tail = css_to_sile(self.styles[classname])
+            start += head
+            end = tail + end
         self.doc.append(start)
-        node._pending = end
+        node.pending_tail = end
 
     def close_classes(self, node):
-        self.doc.append(node._pending)
+        self.doc.append(node.pending_tail)
 
     def visit_document(self, node):
         # TODO Handle packages better
-        s, t = css_to_sile(self.styles['body'])
+        head, tail = css_to_sile(self.styles['body'])
         self.doc.append('''\\begin[class=book]{document}
         \\script[src=packages/verbatim]
         \\script[src=packages/pdf]
@@ -104,11 +95,11 @@ class SILETranslator(nodes.NodeVisitor):
         \\set[parameter=document.parskip,value=12pt]
         \\set[parameter=document.parindent,value=0pt]
         %s
-        \n\n''' % (self.format_args(**self.styles['verbatim']), s))
-        node._pending = t
+        \n\n''' % (format_args(**self.styles['verbatim']), head))
+        node.pending_tail = tail
 
     def depart_document(self, node):
-        self.doc.append(node._pending)
+        self.doc.append(node.pending_tail)
         self.end_env('document')
 
     visit_paragraph = apply_classes
@@ -128,36 +119,36 @@ class SILETranslator(nodes.NodeVisitor):
         pass
 
     def visit_literal(self, node):
-        s, t = css_to_sile(self.styles['literal'])
-        self.doc.append(s)
-        node._pending = t
+        head, tail = css_to_sile(self.styles['literal'])
+        self.doc.append(head)
+        node.pending_tail = tail
 
     def depart_literal(self, node):
-        self.doc.append(node._pending)
+        self.doc.append(node.pending_tail)
 
-    def visit_emphasis(self, node):
+    def visit_emphasis(self, _):
         self.start_cmd('em')
 
     depart_emphasis = end_cmd
 
-    def visit_strong(self, node):
+    def visit_strong(self, _):
         self.start_cmd('font', weight=800)
 
     depart_strong = end_cmd
 
-    def visit_literal_block(self, node):
+    def visit_literal_block(self, _):
         self.start_env('verbatim')
 
-    def depart_literal_block(self, node):
+    def depart_literal_block(self, _):
         self.end_env('verbatim')
 
-    def visit_section(self, node):
+    def visit_section(self, _):
         self.section_level += 1
 
-    def depart_section(self, node):
+    def depart_section(self, _):
         self.section_level -= 1
 
-    def visit_bullet_list(self, node):
+    def visit_bullet_list(self, _):
         # FIXME this resets lmargin so nesting lists in other things break
         # alignments
         self.start_cmd(
@@ -166,7 +157,7 @@ class SILETranslator(nodes.NodeVisitor):
             value='%dpt' % (self.list_depth * 12 + 12))
         self.list_depth += 1
 
-    def depart_bullet_list(self, node):
+    def depart_bullet_list(self, _):
         self.end_cmd()
         self.list_depth -= 1
 
@@ -182,12 +173,12 @@ class SILETranslator(nodes.NodeVisitor):
     visit_block_quote = apply_classes
 
     def depart_block_quote(self, node):
-        self.doc.append('%s\n\n' % node._pending)
+        self.doc.append('%s\n\n' % node.pending_tail)
 
     visit_attribution = apply_classes
     depart_attribution = close_classes
 
-    def visit_transition(self, node):
+    def visit_transition(self, _):
         # TODO: style
         self.doc.append('\n\n\\hrule[width=100%fw, height=0.5pt]\n\n')
 
@@ -197,26 +188,26 @@ class SILETranslator(nodes.NodeVisitor):
         # TODO: do sections as macros because the book class is too limited
         # TODO: handle classes?
         if isinstance(node.parent, nodes.topic):  # Topic title
-            s, t = css_to_sile(self.styles['topic-title'])
-            self.doc.append(s)
-            node._pending = t
+            head, tail = css_to_sile(self.styles['topic-title'])
+            self.doc.append(head)
+            node.pending_tail = tail
         elif isinstance(node.parent, nodes.sidebar):  # Sidebar title
-            s, t = css_to_sile(self.styles['sidebar-title'])
-            self.doc.append(s)
-            node._pending = t
+            head, tail = css_to_sile(self.styles['sidebar-title'])
+            self.doc.append(head)
+            node.pending_tail = tail
         elif self.section_level == 0:  # Doc Title
-            s, t = css_to_sile(self.styles['title'])
-            self.doc.append(s)
-            node._pending = t
+            head, tail = css_to_sile(self.styles['title'])
+            self.doc.append(head)
+            node.pending_tail = tail
         elif self.section_level == 1:
             self.start_cmd('chapter')
-            node._pending='}'
+            node.pending_tail = '}'
         elif self.section_level == 2:
             self.start_cmd('section')
-            node._pending='}'
+            node.pending_tail = '}'
         elif self.section_level == 3:
             self.start_cmd('subsection')
-            node._pending='}'
+            node.pending_tail = '}'
         else:
             raise Exception('Too deep')
 
@@ -268,14 +259,14 @@ class SILETranslator(nodes.NodeVisitor):
 
     def visit_admonition(self, node, name):
         # TODO: handle specific classes like "note" or "warning"
-        s1, t1 = css_to_sile(self.styles['admonition'])
-        self.doc.append(s1)
+        head1, tail1 = css_to_sile(self.styles['admonition'])
+        self.doc.append(head1)
         if name:
-            s2, t2 = css_to_sile(self.styles['admonition-title'])
-            self.doc.append(s2)
+            head2, tail2 = css_to_sile(self.styles['admonition-title'])
+            self.doc.append(head2)
             self.doc.append(name)
-            self.doc.append(t2)
-        node._pending = t1
+            self.doc.append(tail2)
+        node.pending_tail = tail1
 
     def visit_attention(self, node):
         self.visit_admonition(node, 'Attention')
@@ -319,7 +310,7 @@ class SILETranslator(nodes.NodeVisitor):
     def depart_footnote(self, node):
         self.end_cmd()
         self.close_classes(node)
-    
+
     def visit_label(self, node):
         self.apply_classes(node)
     def depart_label(self, node):
@@ -356,14 +347,13 @@ def bullet_for_node(node):
         item whose parent is a list, and
         returns the bullet text it should have"""
     b = ""
-    t = 'item'
     if node.parent.get('start'):
         start = int(node.parent.get('start'))
     else:
         start = 1
 
     if node.parent.get('bullet') or isinstance(node.parent,
-                                                nodes.bullet_list):
+                                               nodes.bullet_list):
         b = node.parent.get('bullet', '*')
         if b == "None":
             b = ""
@@ -378,13 +368,14 @@ def bullet_for_node(node):
         b = toRoman(node.parent.children.index(node) + start).upper() + '.'
     elif node.parent.get('enumtype') == 'loweralpha':
         b = string.ascii_lowercase[node.parent.children.index(node) +
-                                start - 1] + '.'
+                                   start - 1] + '.'
     elif node.parent.get('enumtype') == 'upperalpha':
         b = string.ascii_uppercase[node.parent.children.index(node) +
-                                start - 1] + '.'
+                                   start - 1] + '.'
     else:
-        log.critical("Unknown kind of list_item %s [%s]", node.parent,
-                        nodeid(node))
+        # FIXME log
+        print("Unknown kind of list_item %s [%s]" % (node.parent,
+                     node))
     return b
 
 
@@ -401,7 +392,7 @@ def sile_quote(text):
 def css_to_sile(style):
     """Given a CSS-like style, create a SILE environment."""
 
-    font_keys = {'script', 'language','style', 'weight', 'family', 'size'}
+    font_keys = {'script', 'language', 'style', 'weight', 'family', 'size'}
     margin_keys = {'margin-left', 'margin-right', 'margin-top', 'margin-bottom'}
 
     keys = set(style.keys())
@@ -440,7 +431,7 @@ def css_to_sile(style):
             trailer = '\\skip[height=%s]' % style['margin-bottom'] + trailer
 
     if has_font:
-        opts = ','.join('%s=%s' % (k,style[k]) for k in font_keys if k in style)
+        opts = ','.join('%s=%s' % (k, style[k]) for k in font_keys if k in style)
         s = '\\font[%s]{' % opts
         start += s
         trailer = '}' + trailer
@@ -453,3 +444,10 @@ def css_to_sile(style):
         start += '\\set[parameter=document.parindent,value=%s]' % style['text-indent']
 
     return start, trailer
+
+def format_args(**kwargs):
+    opts = ''
+    if kwargs:
+        opts = '[%s]' % ','.join('%s=%s' % (k, v)
+                                 for k, v in kwargs.items())
+    return opts
