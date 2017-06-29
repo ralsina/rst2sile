@@ -384,19 +384,24 @@ class SILETranslator(nodes.NodeVisitor):
         self.apply_classes(node)
         if 'refuri' in node:
             self.start_cmd('href', src=node['refuri'])
+        else:
+            self.start_cmd('pdf:link', dest=node['refid'])
     def depart_reference(self, node):
         self.end_cmd()
         self.close_classes(node)
 
+    def debug(self, node):
+        import pdb; pdb.set_trace()
+
+    def visit_target(self, node):
+        self.start_cmd('pdf:destination', name=node['refid'])
+    depart_target = end_cmd
 
     # TODO: all these
-    visit_target = noop
-    depart_target = noop
     visit_figure = noop
     depart_figure = noop
     visit_image = noop
     depart_image = noop
-
 
 # Originally from rst2pdf
 def bullet_for_node(node):
