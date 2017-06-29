@@ -190,9 +190,15 @@ class SILETranslator(nodes.NodeVisitor):
 
     depart_transition = noop
 
+    def add_target(self, id):
+        print('target==> ', id)
+        self.start_cmd('pdf:destination', name=id)
+        self.end_cmd()
+
     def visit_title(self, node):
         # TODO: do sections as macros because the book class is too limited
         # TODO: handle classes?
+
         if isinstance(node.parent, nodes.topic):  # Topic title
             head, tail = css_to_sile(self.styles['topic-title'])
             self.doc.append(head)
@@ -216,6 +222,13 @@ class SILETranslator(nodes.NodeVisitor):
             node.pending_tail = '}'
         else:
             raise Exception('Too deep')
+        # target for this title
+        if 'refid' in node:
+            self.add_target(node['refid'])
+        # targets for the section in which this title is
+        if isinstance(node.parent, nodes.section):
+            for id in node.parent['ids']:
+                self.add_target(id)
 
     def depart_title(self, node):
         self.close_classes(node)
@@ -428,8 +441,10 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_reference(self, node):
         self.apply_classes(node)
         if 'refuri' in node:
+            print('ref==> ', node['refuri'])
             self.start_cmd('href', src=node['refuri'])
         else:
+            print('ref==> ', node['refid'])
             self.start_cmd('pdf:link', dest=node['refid'])
 
     def depart_reference(self, node):
@@ -441,7 +456,7 @@ class SILETranslator(nodes.NodeVisitor):
         pdb.set_trace()
 
     def visit_target(self, node):
-        self.start_cmd('pdf:destination', name=node['refid'])
+        self.add_target(node['refid'])
 
     depart_target = end_cmd
 
