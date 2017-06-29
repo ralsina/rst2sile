@@ -26,6 +26,12 @@ sidebar-title {
     text-align: right;
 }
 
+/*Hyperlinks*/
+
+reference {
+    color: navy
+}
+
 /*Styles for footnotes*/
 
 footnote_reference, citation_reference {

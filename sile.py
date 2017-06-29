@@ -91,6 +91,7 @@ class SILETranslator(nodes.NodeVisitor):
         \\script[src=packages/pdf]
         \\script[src=packages/color]
         \\script[src=packages/rules]
+        \\script[src=packages/url]
         \\define[command="verbatim:font"]{\\font%s}
         \\set[parameter=document.parskip,value=12pt]
         \\set[parameter=document.parindent,value=0pt]
@@ -379,9 +380,16 @@ class SILETranslator(nodes.NodeVisitor):
         self.start_cmd('tr')
     depart_option_list_item = end_cmd
 
+    def visit_reference(self, node):
+        self.apply_classes(node)
+        if 'refuri' in node:
+            self.start_cmd('href', src=node['refuri'])
+    def depart_reference(self, node):
+        self.end_cmd()
+        self.close_classes(node)
+
+
     # TODO: all these
-    visit_reference = noop
-    depart_reference = noop
     visit_target = noop
     depart_target = noop
     visit_figure = noop
