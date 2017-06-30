@@ -13,6 +13,9 @@ import tinycss
 CSS_FILE = os.path.join(os.path.dirname(__file__), 'styles.css')
 SILE_PATH = os.path.dirname(__file__)
 
+def debug(*_):
+    import pdb
+    pdb.set_trace()
 
 class Writer(writers.Writer):
 
@@ -473,7 +476,8 @@ class SILETranslator(nodes.NodeVisitor):
     visit_option_group = noop
     depart_option_group = noop
 
-    def visit_option(self, node):
+    @staticmethod
+    def visit_option(node):
         listnode = node.parent.parent.parent
         listnode.table.append([node.astext()])
         raise nodes.SkipChildren()
@@ -482,7 +486,8 @@ class SILETranslator(nodes.NodeVisitor):
     visit_option_string = kill_node
     depart_option_string = noop
 
-    def visit_description(self, node):
+    @staticmethod
+    def visit_description(node):
         listnode = node.parent.parent
         listnode.table[-1].append('\n'.join(textwrap.wrap(node.astext(), 40)))
         raise nodes.SkipChildren()
@@ -503,10 +508,6 @@ class SILETranslator(nodes.NodeVisitor):
     def depart_reference(self, node):
         self.end_cmd()
         self.close_classes(node)
-
-    def debug(self, *_):
-        import pdb
-        pdb.set_trace()
 
     def visit_target(self, node):
         self.add_target(node['refid'])
