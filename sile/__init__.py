@@ -175,12 +175,14 @@ class SILETranslator(nodes.NodeVisitor):
         self.section_level -= 1
 
     def visit_bullet_list(self, _):
-        self.start_cmd('relindent', left="3em")
+        if self.list_depth:
+            self.start_cmd('relindent', left="3em")
         self.list_depth += 1
 
     def depart_bullet_list(self, _):
-        self.end_cmd()
         self.list_depth -= 1
+        if self.list_depth:
+            self.end_cmd()
 
     def visit_list_item(self, node):
         # TODO: move the bullet out of the text
