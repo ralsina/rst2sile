@@ -276,7 +276,12 @@ class SILETranslator(nodes.NodeVisitor):
     depart_decoration = noop
 
     # TODO: implement raw SILE
-    visit_raw = kill_node
+    def visit_raw(self, node):
+        if node['format'] != 'sile':
+            raise nodes.SkipNode
+        else:
+            self.doc.append(node.astext())
+            raise nodes.SkipChildren
     depart_raw = noop
 
     visit_topic = apply_classes
