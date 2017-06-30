@@ -175,8 +175,6 @@ class SILETranslator(nodes.NodeVisitor):
         self.section_level -= 1
 
     def visit_bullet_list(self, _):
-        # FIXME this resets lmargin so nesting lists in other things break
-        # alignments
         self.start_cmd('relindent', left="3em")
         self.list_depth += 1
 
