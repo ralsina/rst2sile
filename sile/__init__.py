@@ -215,8 +215,8 @@ class SILETranslator(nodes.NodeVisitor):
 
     depart_transition = noop
 
-    def add_target(self, id):
-        self.start_cmd('pdf:destination', name=id)
+    def add_target(self, target_id):
+        self.start_cmd('pdf:destination', name=target_id)
         self.end_cmd()
 
     def visit_title(self, node):
@@ -251,8 +251,8 @@ class SILETranslator(nodes.NodeVisitor):
             self.add_target(node['refid'])
         # targets for the section in which this title is
         if isinstance(node.parent, nodes.section):
-            for id in node.parent['ids']:
-                self.add_target(id)
+            for node_id in node.parent['ids']:
+                self.add_target(node_id)
 
     def depart_title(self, node):
         self.close_classes(node)
@@ -460,14 +460,14 @@ class SILETranslator(nodes.NodeVisitor):
         oplen = max(len(r[0]) for r in node.table) + 2
         for row in node.table:
             # The option itself
-            op = row[0] + ' ' * (oplen - len(row[0]))
+            option = row[0] + ' ' * (oplen - len(row[0]))
             if len(row) > 1:
-                desclines = [l.strip() for l in row[1].splitlines()]
-                self.doc.append(op + desclines[0] + '\n')
-                for i, l in enumerate(desclines[1:], 1):
-                    self.doc.append(' ' * oplen + desclines[i] + '\n')
+                desclines = [line.strip() for line in row[1].splitlines()]
+                self.doc.append(option + desclines[0] + '\n')
+                for line in desclines[1:]:
+                    self.doc.append(' ' * oplen + line + '\n')
             else:
-                self.doc.append(op + '\n')
+                self.doc.append(option + '\n')
         self.end_env('verbatim')
 
     visit_option_group = noop
@@ -504,7 +504,7 @@ class SILETranslator(nodes.NodeVisitor):
         self.end_cmd()
         self.close_classes(node)
 
-    def debug(self, *a, **kw):
+    def debug(self, *_):
         import pdb
         pdb.set_trace()
 
