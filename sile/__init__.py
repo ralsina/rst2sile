@@ -12,6 +12,7 @@ import tinycss
 CSS_FILE = os.path.join(os.path.dirname(__file__), 'styles.css')
 SILE_PATH = os.path.dirname(__file__)
 
+
 class Writer(writers.Writer):
 
     settings_spec = ('SILE-Specific Options', None, (
@@ -118,9 +119,7 @@ class SILETranslator(nodes.NodeVisitor):
         \\set[parameter=document.parskip,value=12pt]
         \\set[parameter=document.parindent,value=0pt]
         %s
-        \n\n''' % (
-            format_args(**self.styles['verbatim']), 
-            head))
+        \n\n''' % (format_args(**self.styles['verbatim']), head))
         node.pending_tail = tail
 
     def depart_document(self, node):
@@ -196,7 +195,7 @@ class SILETranslator(nodes.NodeVisitor):
         bullet = bullets.get(bullet, bullet)
         self.doc.append('%s ' % bullet)
 
-    depart_list_item = noop #end_cmd
+    depart_list_item = noop  #end_cmd
 
     visit_enumerated_list = visit_bullet_list
     depart_enumerated_list = depart_bullet_list
@@ -426,7 +425,9 @@ class SILETranslator(nodes.NodeVisitor):
             with tempfile.NamedTemporaryFile('w') as sil_file:
                 sil_file.write(sile_code)
                 pdf_path = sil_file.name + '.pdf'
-                subprocess.check_call(['sile', sil_file.name, '-o', pdf_path], env={'SILE_PATH': SILE_PATH})
+                subprocess.check_call(
+                    ['sile', sil_file.name, '-o', pdf_path],
+                    env={'SILE_PATH': SILE_PATH})
             with open(pdf_path, 'rb') as pdf_file:
                 return pdf_file.read()
         else:
