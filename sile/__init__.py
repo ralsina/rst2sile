@@ -8,7 +8,6 @@ import textwrap
 
 from docutils import languages, nodes, writers
 from roman import toRoman
-import tabulate
 import tinycss
 
 CSS_FILE = os.path.join(os.path.dirname(__file__), 'styles.css')
@@ -197,7 +196,7 @@ class SILETranslator(nodes.NodeVisitor):
         bullet = bullets.get(bullet, bullet)
         self.doc.append('%s ' % bullet)
 
-    depart_list_item = noop  #end_cmd
+    depart_list_item = noop
 
     visit_enumerated_list = visit_bullet_list
     depart_enumerated_list = depart_bullet_list
@@ -284,6 +283,7 @@ class SILETranslator(nodes.NodeVisitor):
         else:
             self.doc.append(node.astext())
             raise nodes.SkipChildren
+
     depart_raw = noop
 
     visit_topic = apply_classes
@@ -454,6 +454,7 @@ class SILETranslator(nodes.NodeVisitor):
 
     def visit_option_list(self, node):
         node.table = []
+
     def depart_option_list(self, node):
         self.start_env('verbatim')
         oplen = max(len(r[0]) for r in node.table) + 2
@@ -461,7 +462,7 @@ class SILETranslator(nodes.NodeVisitor):
             # The option itself
             op = row[0] + ' ' * (oplen - len(row[0]))
             if len(row) > 1:
-                desclines = [l.strip() for l in  row[1].splitlines()]
+                desclines = [l.strip() for l in row[1].splitlines()]
                 self.doc.append(op + desclines[0] + '\n')
                 for i, l in enumerate(desclines[1:], 1):
                     self.doc.append(' ' * oplen + desclines[i] + '\n')
@@ -471,17 +472,21 @@ class SILETranslator(nodes.NodeVisitor):
 
     visit_option_group = noop
     depart_option_group = noop
+
     def visit_option(self, node):
         listnode = node.parent.parent.parent
         listnode.table.append([node.astext()])
         raise nodes.SkipChildren()
+
     depart_option = noop
     visit_option_string = kill_node
     depart_option_string = noop
+
     def visit_description(self, node):
         listnode = node.parent.parent
         listnode.table[-1].append('\n'.join(textwrap.wrap(node.astext(), 40)))
         raise nodes.SkipChildren()
+
     depart_description = noop
     visit_option_argument = noop
     depart_option_argument = noop
