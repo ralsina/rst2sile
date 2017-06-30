@@ -2,6 +2,7 @@ from collections import defaultdict
 import os
 import string
 import subprocess
+import sys
 import tempfile
 
 from docutils import languages, nodes, writers
@@ -420,12 +421,16 @@ class SILETranslator(nodes.NodeVisitor):
     depart_system_message = close_classes
 
     def astext(self):
-        with tempfile.NamedTemporaryFile('w') as sil_file:
-            sil_file.write(''.join(self.doc))
-            pdf_path = sil_file.name + '.pdf'
-            subprocess.check_call(['sile', sil_file.name, '-o', pdf_path], env={'SILE_PATH': SILE_PATH})
-        with open(pdf_path, 'rb') as pdf_file:
-            return pdf_file.read()
+        sile_code = ''.join(self.doc)
+        if sys.argv[0].endswith('rst2pdf'):
+            with tempfile.NamedTemporaryFile('w') as sil_file:
+                sil_file.write(sile_code)
+                pdf_path = sil_file.name + '.pdf'
+                subprocess.check_call(['sile', sil_file.name, '-o', pdf_path], env={'SILE_PATH': SILE_PATH})
+            with open(pdf_path, 'rb') as pdf_file:
+                return pdf_file.read()
+        else:
+            return sile_code
 
     visit_definition_list = noop
     depart_definition_list = noop
