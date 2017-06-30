@@ -188,10 +188,12 @@ class SILETranslator(nodes.NodeVisitor):
         # TODO: move the bullet out of the text
         # flow (see pullquote and rebox packages)
         bullet = bullet_for_node(node)
-
-        if bullet in '*+-':
-            # FIXME: use different unicode bullets
-            bullet = '\u2022'
+        bullets = {
+            '*': '\u2022',
+            '-': '\u25e6',
+            '+': '\u2023',
+        }
+        bullet = bullets.get(bullet, bullet)
         self.doc.append('%s ' % bullet)
 
     depart_list_item = noop #end_cmd
