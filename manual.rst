@@ -42,7 +42,6 @@ Known Issues
 * No tables.
 * Footnotes/Citations are not hyperlinked.
 * TOC is lame.
-* Lists reset left margin. This means nesting them inside other elements breaks things.
 * Styling is limited.
 * No support for page/frameset configuration yet.
 * The used "book" class from SILE is only approximately adequate for this.

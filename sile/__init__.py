@@ -113,6 +113,7 @@ class SILETranslator(nodes.NodeVisitor):
         \\script[src=packages/color]
         \\script[src=packages/rules]
         \\script[src=packages/url]
+        \\script[src=packages/bullets]
         \\define[command="verbatim:font"]{\\font%s}
         \\set[parameter=document.parskip,value=12pt]
         \\set[parameter=document.parindent,value=0pt]
@@ -176,10 +177,7 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_bullet_list(self, _):
         # FIXME this resets lmargin so nesting lists in other things break
         # alignments
-        self.start_cmd(
-            'set',
-            parameter='document.lskip',
-            value='%dpt' % (self.list_depth * 12 + 12))
+        self.start_cmd('relindent', width="3em")
         self.list_depth += 1
 
     def depart_bullet_list(self, _):
@@ -196,7 +194,7 @@ class SILETranslator(nodes.NodeVisitor):
             bullet = '\u2022'
         self.doc.append('%s ' % bullet)
 
-    depart_list_item = noop
+    depart_list_item = noop #end_cmd
 
     visit_enumerated_list = visit_bullet_list
     depart_enumerated_list = depart_bullet_list
@@ -444,32 +442,20 @@ class SILETranslator(nodes.NodeVisitor):
         self.close_classes(node)
         self.doc.append('\\break ')
 
-    # FIXME: Either SILE simpletable is very broken or this code is.
-    def visit_option_list(self, _):
-        self.start_cmd('table')
-
-    depart_option_list = end_cmd
+    visit_option_list = noop
+    depart_option_list = noop
     visit_option_group = noop
     depart_option_group = noop
-
-    def visit_option(self, _):
-        self.start_cmd('td')
-
-    depart_option = end_cmd
+    visit_option = noop
+    depart_option = noop
     visit_option_string = noop
     depart_option_string = noop
-
-    def visit_description(self, _):
-        self.start_cmd('td')
-
-    depart_description = end_cmd
+    visit_description = noop
+    depart_description = noop
     visit_option_argument = noop
     depart_option_argument = noop
-
-    def visit_option_list_item(self, _):
-        self.start_cmd('tr')
-
-    depart_option_list_item = end_cmd
+    visit_option_list_item = noop
+    depart_option_list_item = noop
 
     def visit_reference(self, node):
         self.apply_classes(node)
@@ -580,9 +566,8 @@ def css_to_sile(style):
                 'margin-right']
             trailer = '\\set[parameter=document.rskip,value=0]' + trailer
         if 'margin-left' in keys:
-            start += '\\set[parameter=document.lskip,value=%s]' % style[
-                'margin-left']
-            trailer = '\\set[parameter=document.lskip,value=0]' + trailer
+            start += '\\relindent[width=%s]' % style['margin-left']
+            trailer = '\\relindent[width=-%s]' % style['margin-left'] + trailer
         if 'margin-top' in keys:
             start += '\\skip[height=%s]' % style['margin-top']
         if 'margin-bottom' in keys:

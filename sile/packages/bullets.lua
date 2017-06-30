@@ -1,0 +1,6 @@
+SILE.registerCommand("relindent", function(options, content)
+    local lskip = SILE.settings.get("document.lskip") or SILE.nodefactory.newGlue('0pt')
+    local indent = SILE.nodefactory.newGlue(tostring(lskip['width'] + SILE.length.parse(options["width"])))
+    SILE.settings.set("document.lskip", indent)
+    SILE.process(content)
+end)
