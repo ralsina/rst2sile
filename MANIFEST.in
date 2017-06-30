@@ -2,3 +2,5 @@ include sile/packages/*.lua
 include sile/*.css
 include README.md
 include manual.rst
+include requirements.txt
+
