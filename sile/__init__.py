@@ -177,7 +177,7 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_bullet_list(self, _):
         # FIXME this resets lmargin so nesting lists in other things break
         # alignments
-        self.start_cmd('relindent', width="3em")
+        self.start_cmd('relindent', left="3em")
         self.list_depth += 1
 
     def depart_bullet_list(self, _):
@@ -564,12 +564,11 @@ def css_to_sile(style):
 
     if has_margin:
         if 'margin-right' in keys:
-            start += '\\set[parameter=document.rskip,value=%s]' % style[
-                'margin-right']
-            trailer = '\\set[parameter=document.rskip,value=0]' + trailer
+            start += '\\relindent[right=%s]' % style['margin-right']
+            trailer = '\\relindent[right=-%s]' % style['margin-right'] + trailer
         if 'margin-left' in keys:
-            start += '\\relindent[width=%s]' % style['margin-left']
-            trailer = '\\relindent[width=-%s]' % style['margin-left'] + trailer
+            start += '\\relindent[left=%s]' % style['margin-left']
+            trailer = '\\relindent[left=-%s]' % style['margin-left'] + trailer
         if 'margin-top' in keys:
             start += '\\skip[height=%s]' % style['margin-top']
         if 'margin-bottom' in keys:
