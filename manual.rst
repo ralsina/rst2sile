@@ -56,9 +56,16 @@ Basic usage::
    rst2pdf foo.rst foo.pdf
    rst2sile foo.rst foo.sil
 
+Please notice that the produced ``.sil`` file can't be processed by SILE
+directly since it uses custom packages. To build it you need to set ``SILE_PATH``
+to find them. For example, if rst2sile is installed in ``/usr/share/lib/python3.6/site-packages/sile``
+you need to set SILE_PATH pointing there.
+
 Not so basic usage::
 
    rst2sile --help
+
+TODO: show actual SILE-specific options here and document them.
 
 How do I style the output?
 --------------------------

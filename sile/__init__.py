@@ -75,8 +75,10 @@ class SILETranslator(nodes.NodeVisitor):
         # Pre-load all custom packages to simplify package path / loading
         self.package_code = []
         for package in glob.glob(SILE_PATH):
+            p_name = os.path.splitext(package)[0]
+            p_name = os.path.join('packages', os.path.basename(p_name))
             self.package_code.append(
-                '\\script[src="%s"]\n' % os.path.splitext(package)[0])
+                '\\script[src="%s"]\n' % p_name)
 
         css_parser = tinycss.make_parser('page3')
         stylesheets = self.document.settings.stylesheets.split(',')
@@ -487,12 +489,15 @@ class SILETranslator(nodes.NodeVisitor):
                 sil_file.write(sile_code)
                 pdf_path = sil_file.name + '.pdf'
                 toc_path = sil_file.name + '.toc'
-                subprocess.check_call(['sile', sil_file.name, '-o', pdf_path])
+                env = os.environ.copy()
+                env['SILE_PATH'] = os.path.dirname(__file__)
+                subprocess.check_call(
+                    ['sile', sil_file.name, '-o', pdf_path], env=env)
                 if os.path.isfile(
                         toc_path
                 ) and not self.use_docutils_toc:  # Need to run twice
                     subprocess.check_call(
-                        ['sile', sil_file.name, '-o', pdf_path])
+                        ['sile', sil_file.name, '-o', pdf_path], env=env)
             with open(pdf_path, 'rb') as pdf_file:
                 return pdf_file.read()
         else:
@@ -588,7 +593,6 @@ class SILETranslator(nodes.NodeVisitor):
     depart_figure = close_classes
     visit_caption = apply_classes
     depart_caption = close_classes
-
 
 
 # Originally from rst2pdf
