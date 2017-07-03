@@ -311,6 +311,10 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_topic(self, node):
         self.apply_classes(node)
         if 'contents' in node['classes']:
+            # FIXME: Contents is not in TOC
+            # FIXME: native TOC has no links
+            # FIXME: native TOC is not styled
+            # FIXME: native TOC has broken title
             if isinstance(node.next_node(), nodes.title):
                 self.start_cmd(
                     'tocentry',
@@ -318,6 +322,8 @@ class SILETranslator(nodes.NodeVisitor):
                     level=self.section_level + 1,
                     dest=node.get('ids', ['contents'])[0])
                 self.end_cmd()
+                self.visit_title(node.next_node())
+                self.depart_title(node.next_node())
             if not self.use_docutils_toc:
                 self.doc.append('\\tableofcontents')
                 raise nodes.SkipChildren
@@ -467,8 +473,10 @@ class SILETranslator(nodes.NodeVisitor):
             with tempfile.NamedTemporaryFile('w', delete=False) as sil_file:
                 sil_file.write(sile_code)
                 pdf_path = sil_file.name + '.pdf'
-                print(SILE_PATH)
+                toc_path = sil_file.name + '.toc'
                 subprocess.check_call(['sile', sil_file.name, '-o', pdf_path])
+                if os.path.isfile(toc_path) and not self.use_docutils_toc:  # Need to run twice
+                    subprocess.check_call(['sile', sil_file.name, '-o', pdf_path])
             with open(pdf_path, 'rb') as pdf_file:
                 return pdf_file.read()
         else:
