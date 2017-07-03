@@ -584,9 +584,11 @@ class SILETranslator(nodes.NodeVisitor):
         self.end_cmd()
         self.close_classes(node)
 
-    # TODO: all these
-    visit_figure = noop
-    depart_figure = noop
+    visit_figure = apply_classes
+    depart_figure = close_classes
+    visit_caption = apply_classes
+    depart_caption = close_classes
+
 
 
 # Originally from rst2pdf
