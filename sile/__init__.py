@@ -1,4 +1,5 @@
 from collections import defaultdict
+import glob
 import os
 import string
 import subprocess
@@ -11,11 +12,13 @@ from roman import toRoman
 import tinycss
 
 CSS_FILE = os.path.join(os.path.dirname(__file__), 'styles.css')
-SILE_PATH = os.path.dirname(__file__)
+SILE_PATH = os.path.join(os.path.dirname(__file__), 'packages', '*.lua')
+
 
 def debug(*_):
     import pdb
     pdb.set_trace()
+
 
 class Writer(writers.Writer):
 
@@ -53,8 +56,13 @@ class SILETranslator(nodes.NodeVisitor):
         self.doc = []
         self.section_level = 0
         self.list_depth = 0
-        css_parser = tinycss.make_parser('page3')
 
+        # Pre-load all custom packages to simplify package path / loading
+        self.package_code = []
+        for package in glob.glob(SILE_PATH):
+            self.package_code.append('\\script[src="%s"]\n' % os.path.splitext(package)[0])
+
+        css_parser = tinycss.make_parser('page3')
         stylesheets = self.document.settings.stylesheets.split(',')
         self.styles = defaultdict(dict)
         for ssheet in stylesheets:
@@ -112,18 +120,20 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_document(self, node):
         # TODO Handle packages better
         head, tail = css_to_sile(self.styles['body'])
+
+        scripts = ''.join(self.package_code)
+
         self.doc.append('''\\begin[class=book]{document}
         \\script[src=packages/verbatim]
-        \\script[src=packages/pdf]
         \\script[src=packages/color]
         \\script[src=packages/rules]
-        \\script[src=packages/url]
-        \\script[src=packages/bullets]
+        \\script[src=packages/pdf]
         \\define[command="verbatim:font"]{\\font%s}
         \\set[parameter=document.parskip,value=12pt]
         \\set[parameter=document.parindent,value=0pt]
         %s
-        \n\n''' % (format_args(**self.styles['verbatim']), head))
+        %s
+        \n\n''' % (format_args(**self.styles['verbatim']), scripts, head))
         node.pending_tail = tail
 
     def depart_document(self, node):
@@ -432,12 +442,12 @@ class SILETranslator(nodes.NodeVisitor):
     def astext(self):
         sile_code = ''.join(self.doc)
         if sys.argv[0].endswith('rst2pdf'):
-            with tempfile.NamedTemporaryFile('w') as sil_file:
+            with tempfile.NamedTemporaryFile('w', delete=False) as sil_file:
                 sil_file.write(sile_code)
                 pdf_path = sil_file.name + '.pdf'
+                print(SILE_PATH)
                 subprocess.check_call(
-                    ['sile', sil_file.name, '-o', pdf_path],
-                    env={'SILE_PATH': SILE_PATH})
+                    ['sile', sil_file.name, '-o', pdf_path])
             with open(pdf_path, 'rb') as pdf_file:
                 return pdf_file.read()
         else:
@@ -501,7 +511,7 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_reference(self, node):
         self.apply_classes(node)
         if 'refuri' in node:
-            self.start_cmd('href', src=node['refuri'])
+            self.start_cmd('pdf:link', dest=node['refuri'], external = "true")
         else:
             self.start_cmd('pdf:link', dest=node['refid'])
 
