@@ -7,7 +7,7 @@ import sys
 import tempfile
 import textwrap
 
-from docutils import languages, nodes, writers
+from docutils import frontend, languages, nodes, writers
 from roman import toRoman
 import tinycss
 
@@ -27,7 +27,13 @@ class Writer(writers.Writer):
          CSS_FILE, ['--stylesheets'], {
              'default': CSS_FILE,
              'metavar': '<file>'
-         }), ))
+         }), ('Table of contents by Docutils (without page numbers). ',
+              ['--use-docutils-toc'], {
+                  'dest': 'use_docutils_toc',
+                  'action': 'store_true',
+                  'validator': frontend.validate_boolean,
+                  'default': False
+              }), ))
 
     def __init__(self):
         super(Writer, self).__init__()
@@ -57,10 +63,13 @@ class SILETranslator(nodes.NodeVisitor):
         self.section_level = 0
         self.list_depth = 0
 
+        self.use_docutils_toc = self.settings.use_docutils_toc
+
         # Pre-load all custom packages to simplify package path / loading
         self.package_code = []
         for package in glob.glob(SILE_PATH):
-            self.package_code.append('\\script[src="%s"]\n' % os.path.splitext(package)[0])
+            self.package_code.append(
+                '\\script[src="%s"]\n' % os.path.splitext(package)[0])
 
         css_parser = tinycss.make_parser('page3')
         stylesheets = self.document.settings.stylesheets.split(',')
@@ -299,7 +308,20 @@ class SILETranslator(nodes.NodeVisitor):
 
     depart_raw = noop
 
-    visit_topic = apply_classes
+    def visit_topic(self, node):
+        self.apply_classes(node)
+        if 'contents' in node['classes']:
+            if isinstance(node.next_node(), nodes.title):
+                self.start_cmd(
+                    'tocentry',
+                    title=node.next_node().astext(),
+                    level=self.section_level + 1,
+                    dest=node.get('ids', ['contents'])[0])
+                self.end_cmd()
+            if not self.use_docutils_toc:
+                self.doc.append('\\tableofcontents')
+                raise nodes.SkipChildren
+
     depart_topic = close_classes
 
     visit_docinfo = apply_classes
@@ -446,8 +468,7 @@ class SILETranslator(nodes.NodeVisitor):
                 sil_file.write(sile_code)
                 pdf_path = sil_file.name + '.pdf'
                 print(SILE_PATH)
-                subprocess.check_call(
-                    ['sile', sil_file.name, '-o', pdf_path])
+                subprocess.check_call(['sile', sil_file.name, '-o', pdf_path])
             with open(pdf_path, 'rb') as pdf_file:
                 return pdf_file.read()
         else:
@@ -511,7 +532,7 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_reference(self, node):
         self.apply_classes(node)
         if 'refuri' in node:
-            self.start_cmd('pdf:link', dest=node['refuri'], external = "true")
+            self.start_cmd('pdf:link', dest=node['refuri'], external="true")
         else:
             self.start_cmd('pdf:link', dest=node['refid'])
 
