@@ -137,6 +137,7 @@ class SILETranslator(nodes.NodeVisitor):
         \\script[src=packages/color]
         \\script[src=packages/rules]
         \\script[src=packages/pdf]
+        \\script[src=packages/image]
         \\define[command="verbatim:font"]{\\font%s}
         \\set[parameter=document.parskip,value=12pt]
         \\set[parameter=document.parindent,value=0pt]
@@ -560,11 +561,18 @@ class SILETranslator(nodes.NodeVisitor):
 
     depart_target = end_cmd
 
+    def visit_image(self, node):
+        self.apply_classes(node)
+        uri = node['uri']
+        self.start_cmd('img', src=uri)
+    def depart_image(self, node):
+        self.end_cmd()
+        self.close_classes(node)
+
+
     # TODO: all these
     visit_figure = noop
     depart_figure = noop
-    visit_image = noop
-    depart_image = noop
 
 
 # Originally from rst2pdf
