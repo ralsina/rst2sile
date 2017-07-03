@@ -313,19 +313,23 @@ class SILETranslator(nodes.NodeVisitor):
         if 'contents' in node['classes']:
             # FIXME: Contents is not in TOC
             # FIXME: native TOC has no links
-            # FIXME: native TOC is not styled
-            # FIXME: native TOC has broken title
-            if isinstance(node.next_node(), nodes.title):
-                self.start_cmd(
-                    'tocentry',
-                    title=node.next_node().astext(),
-                    level=self.section_level + 1,
-                    dest=node.get('ids', ['contents'])[0])
-                self.end_cmd()
-                self.visit_title(node.next_node())
-                self.depart_title(node.next_node())
+            # FIXME: last item in the TOC is shorter (?!)
             if not self.use_docutils_toc:
-                self.doc.append('\\tableofcontents')
+                self.start_cmd('define', command='tableofcontents:title')
+                self.doc.append(node.next_node().astext())
+                self.end_cmd()
+                for command, style in {
+                        "tableofcontents:headerfont": 'toc-header',
+                        "tableofcontents:level1item": 'toc-l1',
+                        "tableofcontents:level2item": 'toc-l2',
+                        "tableofcontents:level3item": 'toc-l3'}.items():
+                    self.start_cmd('define', command=command)
+                    head, tail = css_to_sile(self.styles[style])
+                    self.doc.append(head)
+                    self.doc.append('\\process\\break')
+                    self.doc.append(tail + '\n')
+                    self.end_cmd()
+                node.pending_tail = '\\tableofcontents' + node.pending_tail
                 raise nodes.SkipChildren
 
     depart_topic = close_classes
@@ -475,8 +479,11 @@ class SILETranslator(nodes.NodeVisitor):
                 pdf_path = sil_file.name + '.pdf'
                 toc_path = sil_file.name + '.toc'
                 subprocess.check_call(['sile', sil_file.name, '-o', pdf_path])
-                if os.path.isfile(toc_path) and not self.use_docutils_toc:  # Need to run twice
-                    subprocess.check_call(['sile', sil_file.name, '-o', pdf_path])
+                if os.path.isfile(
+                        toc_path
+                ) and not self.use_docutils_toc:  # Need to run twice
+                    subprocess.check_call(
+                        ['sile', sil_file.name, '-o', pdf_path])
             with open(pdf_path, 'rb') as pdf_file:
                 return pdf_file.read()
         else:
