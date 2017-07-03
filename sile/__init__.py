@@ -8,11 +8,18 @@ import tempfile
 import textwrap
 
 from docutils import frontend, languages, nodes, writers
+from docutils.parsers.rst import directives
 from roman import toRoman
 import tinycss
 
 CSS_FILE = os.path.join(os.path.dirname(__file__), 'styles.css')
 SILE_PATH = os.path.join(os.path.dirname(__file__), 'packages', '*.lua')
+
+# Units allowed by SILE are different
+directives.length_units = [
+    'pt', 'mm', 'cm', 'in', '%pw', '%ph', '%fw', '%fh', '%lw', '%pmax',
+    '%pmin', '%fmax', '%fmin'
+]
 
 
 def debug(*_):
@@ -323,7 +330,8 @@ class SILETranslator(nodes.NodeVisitor):
                         "tableofcontents:headerfont": 'toc-header',
                         "tableofcontents:level1item": 'toc-l1',
                         "tableofcontents:level2item": 'toc-l2',
-                        "tableofcontents:level3item": 'toc-l3'}.items():
+                        "tableofcontents:level3item": 'toc-l3'
+                }.items():
                     self.start_cmd('define', command=command)
                     head, tail = css_to_sile(self.styles[style])
                     self.doc.append(head)
@@ -563,12 +571,18 @@ class SILETranslator(nodes.NodeVisitor):
 
     def visit_image(self, node):
         self.apply_classes(node)
-        uri = node['uri']
-        self.start_cmd('img', src=uri)
+        args = {'src': node['uri']}
+        if 'width' in node:
+            args['width'] = node['width']
+            if args['width'].endswith('%'):
+                args['width'] += 'fw'
+        if 'height' in node:
+            args['height'] = node['height']
+        self.start_cmd('img', **args)
+
     def depart_image(self, node):
         self.end_cmd()
         self.close_classes(node)
-
 
     # TODO: all these
     visit_figure = noop
