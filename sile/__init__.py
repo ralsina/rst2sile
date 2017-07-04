@@ -125,8 +125,8 @@ class SILETranslator(nodes.NodeVisitor):
         classes = ['.' + c for c in node.get('classes', [])]
         classes.insert(0, node.__class__.__name__)
         for classname in classes:
-            head, tail = css_to_sile(self.styles[classname])
-            start += head
+            head, tail =  css_to_sile(self.styles[classname])
+            start += '%% %s\n%s' % (classname, head)
             end = tail + end
         self.doc.append(start)
         node.pending_tail = end
@@ -354,6 +354,7 @@ class SILETranslator(nodes.NodeVisitor):
 
     depart_topic = close_classes
 
+    # FIXME: text alignments for item lists are tricky
     visit_docinfo = apply_classes
     depart_docinfo = close_classes
 
@@ -366,8 +367,6 @@ class SILETranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     depart_docinfo_node = noop
-
-    # FIXME: text alignments are tricky
     visit_field_list = apply_classes
     depart_field_list = close_classes
     visit_field = apply_classes
@@ -655,6 +654,8 @@ class SILETranslator(nodes.NodeVisitor):
 
     depart_target = noop
 
+    # FIXME: standalone image directives appear inline with next paragraph is stuck 
+    # to it instead of standalone
     def visit_image(self, node):
         self.apply_classes(node)
         args = {'src': node['uri']}
@@ -784,16 +785,16 @@ def css_to_sile(style):
     trailer = ''
 
     if has_margin:
+        if 'margin-top' in keys:
+            start += '\\skip[height=%s]' % style['margin-top']
+        if 'margin-bottom' in keys:
+            trailer = '\\skip[height=%s]' % style['margin-bottom'] + trailer
         if 'margin-right' in keys:
             start += '\\relindent[right=%s]{' % style['margin-right']
             trailer = '}' + trailer
         if 'margin-left' in keys:
             start += '\\relindent[left=%s]{' % style['margin-left']
             trailer = '}' + trailer
-        if 'margin-top' in keys:
-            start += '\\skip[height=%s]' % style['margin-top']
-        if 'margin-bottom' in keys:
-            trailer = '\\skip[height=%s]' % style['margin-bottom'] + trailer
 
     if has_alignment:
         value = style['text-align']

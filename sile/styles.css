@@ -7,6 +7,9 @@ body {
 
 /*Styles for the native TOC*/
 
+.contents {
+}
+
 toc-header {
     font-style: roman;
     font-size: 12pt;
@@ -130,7 +133,6 @@ topic-title {
 }
 
 topic {
-    margin-left: 100pt;
 }
 
 /* Rubric style */
@@ -164,8 +166,10 @@ docinfo, field_list {
 
 field_name, organization, date, author, authors, address, contact, status, revision, version, copyright {
     font-weight: 900;
-    text-indent: -2em;
     margin-top: 0pt;
+}
+
+field_body {
 }
 
 /*Styles for definition lists*/
