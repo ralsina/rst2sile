@@ -160,7 +160,6 @@ verbatim {
 
 docinfo, field_list {
     text-align: left;
-    margin-left: 10%fw;
 }
 
 field_name, organization, date, author, authors, address, contact, status, revision, version, copyright {
