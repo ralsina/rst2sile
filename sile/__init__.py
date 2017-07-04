@@ -262,6 +262,10 @@ class SILETranslator(nodes.NodeVisitor):
             head, tail = css_to_sile(self.styles['sidebar-title'])
             self.doc.append(head)
             node.pending_tail = tail
+        elif isinstance(node.parent, nodes.admonition):  # Admonition title
+            head, tail = css_to_sile(self.styles['admonition-title'])
+            self.doc.append(head)
+            node.pending_tail = tail
         elif self.section_level == 0:  # Doc Title
             head, tail = css_to_sile(self.styles['title'])
             self.doc.append(head)
@@ -434,16 +438,17 @@ class SILETranslator(nodes.NodeVisitor):
     visit_generated = apply_classes
     depart_generated = close_classes
 
-    def visit_admonition(self, node, name='Admonition'):
+    def visit_admonition(self, node, name=''):
         _name = name.lower()
         adm_style = self.styles.get(_name, self.styles['admonition'])
         title_style = self.styles.get(_name + '-title', self.styles['admonition-title'])
         head1, tail1 = css_to_sile(adm_style)
         self.doc.append(head1)
-        head2, tail2 = css_to_sile(title_style)
-        self.doc.append(head2)
-        self.doc.append(name)
-        self.doc.append(tail2)
+        if _name:  # Generic admonitions have no name
+            head2, tail2 = css_to_sile(title_style)
+            self.doc.append(head2)
+            self.doc.append(name)
+            self.doc.append(tail2)
         node.pending_tail = tail1
 
     depart_admonition = close_classes
