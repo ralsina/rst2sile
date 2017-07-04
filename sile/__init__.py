@@ -77,8 +77,7 @@ class SILETranslator(nodes.NodeVisitor):
         for package in glob.glob(SILE_PATH):
             p_name = os.path.splitext(package)[0]
             p_name = os.path.join('packages', os.path.basename(p_name))
-            self.package_code.append(
-                '\\script[src="%s"]\n' % p_name)
+            self.package_code.append('\\script[src="%s"]\n' % p_name)
 
         css_parser = tinycss.make_parser('page3')
         stylesheets = self.document.settings.stylesheets.split(',')
@@ -378,6 +377,11 @@ class SILETranslator(nodes.NodeVisitor):
 
     depart_author = depart_docinfo_node
 
+    def visit_authors(self, node):
+        self.visit_docinfo_node(node, 'authors')
+
+    depart_authors = depart_docinfo_node
+
     def visit_date(self, node):
         self.visit_docinfo_node(node, 'date')
 
@@ -388,10 +392,35 @@ class SILETranslator(nodes.NodeVisitor):
 
     depart_version = depart_docinfo_node
 
+    def visit_revision(self, node):
+        self.visit_docinfo_node(node, 'revision')
+
+    depart_revision = depart_docinfo_node
+
     def visit_copyright(self, node):
         self.visit_docinfo_node(node, 'copyright')
 
     depart_copyright = depart_docinfo_node
+
+    def visit_address(self, node):
+        self.visit_docinfo_node(node, 'address')
+
+    depart_address = depart_docinfo_node
+
+    def visit_contact(self, node):
+        self.visit_docinfo_node(node, 'contact')
+
+    depart_contact = depart_docinfo_node
+
+    def visit_organization(self, node):
+        self.visit_docinfo_node(node, 'organization')
+
+    depart_organization = depart_docinfo_node
+
+    def visit_status(self, node):
+        self.visit_docinfo_node(node, 'status')
+
+    depart_status = depart_docinfo_node
 
     def visit_admonition(self, node, name):
         # TODO: handle specific classes like "note" or "warning"
