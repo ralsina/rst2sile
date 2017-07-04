@@ -67,9 +67,9 @@ reference {
     color: navy
 }
 
-/*Styles for footnotes*/
+/*Styles for footnotes, citations, superscript, subscript*/
 
-footnote_reference, citation_reference {
+footnote_reference, citation_reference, superscript, subscript {
     font-size: 0.7em;
 }
 
@@ -172,11 +172,15 @@ field_name {
 
 term {
     font-weight: 900;
-    text-indent: -2em;
+}
+
+classifier {
+    font-style: italic;
 }
 
 definition {
-    margin-left: 5em;
+    margin-top: 0pt;
+    margin-left: 3em;
 }
 
 /*Style for block quote body text*/

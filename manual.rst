@@ -100,11 +100,12 @@ custom ones via the ``--stylesheets`` option.
   * text-align
   * margin-left
   * margin-right
-  * margin-top
+  * margin-top 
   * margin-bottom
   * language (for hyphenation. Special value "und" means no language)
   * script (for hyphenation and layout)
   * color
+* Applying margin-top to elements makes them "block-level", so use with care.
 
 Motivation, in the form of exasperated Q&A
 ------------------------------------------

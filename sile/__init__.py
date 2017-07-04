@@ -444,7 +444,8 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_admonition(self, node, name=''):
         _name = name.lower()
         adm_style = self.styles.get(_name, self.styles['admonition'])
-        title_style = self.styles.get(_name + '-title', self.styles['admonition-title'])
+        title_style = self.styles.get(_name + '-title',
+                                      self.styles['admonition-title'])
         head1, tail1 = css_to_sile(adm_style)
         self.doc.append(head1)
         if _name:  # Generic admonitions have no name
@@ -501,14 +502,23 @@ class SILETranslator(nodes.NodeVisitor):
 
     depart_warning = close_classes
 
-    # TODO: links, footnote refs have a bad left-space
-    def visit_footnote_reference(self, node):
+    def visit_superscript(self, node):
         self.start_cmd('raise', height='.5em')
         self.apply_classes(node)
 
-    def depart_footnote_reference(self, node):
+    def depart_superscript(self, node):
         self.end_cmd()
         self.close_classes(node)
+
+    def visit_subscript(self, node):
+        self.start_cmd('lower', height='.25em')
+        self.apply_classes(node)
+
+    depart_subscript = depart_superscript
+
+    # TODO: footnote links
+    visit_footnote_reference = visit_superscript
+    depart_footnote_reference = depart_superscript
 
     visit_citation_reference = visit_footnote_reference
     depart_citation_reference = depart_footnote_reference
@@ -559,13 +569,19 @@ class SILETranslator(nodes.NodeVisitor):
     depart_definition_list = noop
     visit_definition_list_item = noop
     depart_definition_list_item = noop
-    visit_definition = apply_classes
+
+    def visit_definition(self, node):
+        self.doc.append('\n\n')
+        self.apply_classes(node)
+
     depart_definition = close_classes
     visit_term = apply_classes
+    depart_term = close_classes
 
-    def depart_term(self, node):
-        self.close_classes(node)
-        self.doc.append('\\break ')
+    def visit_classifier(self, node):
+        self.apply_classes(node)
+        self.doc.append(' : ')
+    depart_classifier = close_classes
 
     def visit_option_list(self, node):
         node.table = []
@@ -627,7 +643,7 @@ class SILETranslator(nodes.NodeVisitor):
         for _id in node.get('ids', []):
             self.add_target(_id)
 
-    depart_target = noop   
+    depart_target = noop
 
     def visit_image(self, node):
         self.apply_classes(node)
@@ -648,28 +664,24 @@ class SILETranslator(nodes.NodeVisitor):
     depart_figure = close_classes
     visit_caption = apply_classes
     depart_caption = close_classes
+
     def visit_legend(self, node):
         # This is a hack
         # Close figure's environment
         self.close_classes(node.parent)
         node.parent.pending_tail = ''
+        # Then apply the legend's
         self.apply_classes(node)
+
     def depart_legend(self, node):
         self.close_classes(node)
 
     visit_rubric = apply_classes
     depart_rubric = close_classes
 
-
     # TODO: implement these
     visit_title_reference = noop
     depart_title_reference = noop
-    visit_subscript = noop
-    depart_subscript = noop
-    visit_superscript = noop
-    depart_superscript = noop
-    visit_classifier = noop
-    depart_classifier = noop
     visit_line_block = noop
     depart_line_block = noop
     visit_line = noop
@@ -696,6 +708,7 @@ class SILETranslator(nodes.NodeVisitor):
     depart_row = noop
     visit_entry = noop
     depart_entry = noop
+
 
 # Originally from rst2pdf
 def bullet_for_node(node):
