@@ -290,10 +290,11 @@ class SILETranslator(nodes.NodeVisitor):
         self.doc.append('\n\n')
 
     def visit_subtitle(self, node):
+        # FIXME: handle sidebar subtitles
         if self.section_level == 0:  # Doc SubTitle
             self.apply_classes(node)
         else:
-            raise Exception('Too deep')
+            self.apply_classes(node)
 
     depart_subtitle = depart_title
 
@@ -422,7 +423,14 @@ class SILETranslator(nodes.NodeVisitor):
 
     depart_status = depart_docinfo_node
 
-    def visit_admonition(self, node, name):
+    visit_problematic = apply_classes
+    depart_problematic = close_classes
+
+    # FIXME: no idea what _generated is
+    visit_generated = apply_classes
+    depart_generated = close_classes
+
+    def visit_admonition(self, node, name=None):
         # TODO: handle specific classes like "note" or "warning"
         head1, tail1 = css_to_sile(self.styles['admonition'])
         self.doc.append(head1)
@@ -432,6 +440,8 @@ class SILETranslator(nodes.NodeVisitor):
             self.doc.append(name)
             self.doc.append(tail2)
         node.pending_tail = tail1
+
+    depart_admonition = close_classes
 
     def visit_attention(self, node):
         self.visit_admonition(node, 'Attention')
@@ -599,9 +609,12 @@ class SILETranslator(nodes.NodeVisitor):
         self.close_classes(node)
 
     def visit_target(self, node):
-        self.add_target(node['refid'])
+        if 'refid' in node:
+            self.add_target(node['refid'])
+        for _id in node.get('ids', []):
+            self.add_target(_id)
 
-    depart_target = end_cmd
+    depart_target = noop   
 
     def visit_image(self, node):
         self.apply_classes(node)
@@ -623,6 +636,45 @@ class SILETranslator(nodes.NodeVisitor):
     visit_caption = apply_classes
     depart_caption = close_classes
 
+    # TODO: implement these
+    visit_title_reference = noop
+    depart_title_reference = noop
+    visit_subscript = noop
+    depart_subscript = noop
+    visit_superscript = noop
+    depart_superscript = noop
+    visit_classifier = noop
+    depart_classifier = noop
+    visit_line_block = noop
+    depart_line_block = noop
+    visit_line = noop
+    depart_line = noop
+    visit_legend = noop
+    depart_legend = noop
+    visit_rubric = noop
+    depart_rubric = noop
+    visit_doctest_block = noop
+    depart_doctest_block = noop
+    visit_substitution_definition = noop
+    depart_substitution_definition = noop
+    visit_compound = noop
+    depart_compound = noop
+
+    # TODO: tables
+    visit_table = noop
+    depart_table = noop
+    visit_tgroup = noop
+    depart_tgroup = noop
+    visit_colspec = noop
+    depart_colspec = noop
+    visit_thead = noop
+    depart_thead = noop
+    visit_tbody = noop
+    depart_tbody = noop
+    visit_row = noop
+    depart_row = noop
+    visit_entry = noop
+    depart_entry = noop
 
 # Originally from rst2pdf
 def bullet_for_node(node):
