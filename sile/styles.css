@@ -163,9 +163,10 @@ docinfo, field_list {
     margin-left: 10%fw;
 }
 
-field_name {
+field_name, organization, date, author, authors, address, contact, status, revision, version, copyright {
     font-weight: 900;
     text-indent: -2em;
+    margin-top: 0pt;
 }
 
 /*Styles for definition lists*/

@@ -106,6 +106,7 @@ custom ones via the ``--stylesheets`` option.
   * script (for hyphenation and layout)
   * color
 * Applying margin-top to elements makes them "block-level", so use with care.
+* Color seems to break text-indent so you can't use both properly.
 
 Motivation, in the form of exasperated Q&A
 ------------------------------------------

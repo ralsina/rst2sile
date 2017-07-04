@@ -358,14 +358,14 @@ class SILETranslator(nodes.NodeVisitor):
     depart_docinfo = close_classes
 
     def visit_docinfo_node(self, node, name):
-        # FIXME: classes are not right
+        self.apply_classes(node)
         self.doc.append(self.language.labels[name])
         self.doc.append(': ')
-        self.doc.append(node.astext() + '\\break ')
+        self.close_classes(node)
+        self.doc.append(node.astext())
         raise nodes.SkipNode
 
-    def depart_docinfo_node(self, node):
-        pass
+    depart_docinfo_node = noop
 
     # FIXME: text alignments are tricky
     visit_field_list = apply_classes
@@ -383,12 +383,21 @@ class SILETranslator(nodes.NodeVisitor):
     depart_field_body = close_classes
 
     def visit_author(self, node):
-        self.visit_docinfo_node(node, 'author')
+        if isinstance(node.parent, nodes.authors):
+            if self.author_in_authors:
+                self.doc.append('\\break ')
+        else:
+            self.visit_docinfo_node(node, 'author')
 
-    depart_author = depart_docinfo_node
+    def depart_author(self, node):
+        if isinstance(node.parent, nodes.authors):
+            self.author_in_authors = True
+        else:
+            self.depart_docinfo_node(node)
 
     def visit_authors(self, node):
         self.visit_docinfo_node(node, 'authors')
+        self.author_in_authors = False
 
     depart_authors = depart_docinfo_node
 
@@ -629,6 +638,7 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_reference(self, node):
         self.apply_classes(node)
         if 'refuri' in node:
+            # FIXME: external links are broken
             self.start_cmd('pdf:link', dest=node['refuri'], external="true")
         else:
             self.start_cmd('pdf:link', dest=node['refid'])
@@ -805,13 +815,13 @@ def css_to_sile(style):
         start += head
         trailer = '}' + trailer
 
-    if has_color:
-        start += '\\color[color=%s]{' % style['color']
-        trailer = '}' + trailer
-
     if has_indent:
         start += '\\set[parameter=document.parindent,value=%s]' % style[
             'text-indent']
+
+    if has_color:
+        start += '\\color[color=%s]{' % style['color']
+        trailer = '}' + trailer
 
     return start, trailer
 
