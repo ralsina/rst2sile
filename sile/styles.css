@@ -1,0 +1,356 @@
+/*General style for the document*/
+
+body {
+    font-family: DejaVu Sans;
+    font-size: 10pt;
+}
+
+/*Styles for the native TOC*/
+
+toc-header {
+    font-style: roman;
+    font-size: 12pt;
+    font-weight: 800;
+    text-indent: 0;
+}
+
+toc-l1, toc-l2, toc-l3 {
+    font-style: roman;
+    font-size: 10pt;
+}
+
+/*Style for figures*/
+
+figure {
+    text-align: center;
+}
+
+caption {
+    font-style: italic;
+    margin-top: 0pt; /* So it breaks line */
+}
+
+legend {
+    text-align: left;
+}
+
+/* Style for paragraphs */
+
+paragraph {
+    text-indent: 0pt;
+}
+
+
+/*Style for sidebars*/
+
+sidebar {
+    margin-left: 5em;
+    margin-right: 5em;
+}
+
+sidebar-title {
+    font-weight: 900;
+    text-indent: 0;
+    text-align: right;
+}
+
+sidebar-subtitle {
+    font-weight: 400;
+    font-style: italic;
+    text-indent: 0;
+    text-align: right;
+}
+
+/*Hyperlinks*/
+
+reference {
+    color: navy
+}
+
+/*Styles for footnotes*/
+
+footnote_reference, citation_reference {
+    font-size: 0.7em;
+}
+
+footnote, citation {
+    font-family: DejaVu Sans;
+    size: 10pt;
+}
+
+label {
+    font-family: DejaVu Sans;
+    font-size: 10pt;
+}
+
+/*Style for docutils system messages*/
+system_message, problematic {
+    color: red;
+    font-weight: 900;
+}
+
+/*Admonitions*/
+
+admonition, attention, caution, danger, error, hint, important, note, tip, warning {
+    margin-left: 5em;
+    margin-right: 5em;
+}
+
+admonition-title, hint-title, important-title, note-title, tip-title{
+    font-weight: 900;
+    text-indent: 0;
+    text-align: center;
+}
+
+attention-title, caution-title, danger-title, error-title, warning-title {
+    font-weight: 900;
+    text-indent: 0;
+    text-align: center;
+    color: red;
+}
+
+/*Styles for the doc title and subtitle*/
+
+title {
+    size: 20pt;
+    font-weight: 900;
+}
+
+subtitle {
+    font-size: 15pt;
+    font-weight: 900;
+}
+
+
+/*Styles for a topic*/
+
+topic-title {
+    font-weight: 900;
+    text-indent: 0;
+}
+
+topic {
+    margin-left: 100pt;
+}
+
+/* Rubric style */
+
+rubric {
+    color: red;
+    font-weight: 900;
+    margin-bottom: 4pt;
+}
+
+/*Style for inline literals*/
+
+literal {
+    font-family: FreeMono;
+    language: und;
+}
+
+
+/*Style for literal blocks*/
+
+verbatim {
+    font-family: FreeMono;
+    language: und;
+}
+
+/*Style for docinfo and item lists*/
+
+docinfo, field_list {
+    text-align: left;
+    margin-left: 10%fw;
+}
+
+field_name {
+    font-weight: 900;
+    text-indent: -2em;
+}
+
+/*Styles for definition lists*/
+
+term {
+    font-weight: 900;
+    text-indent: -2em;
+}
+
+definition {
+    margin-left: 5em;
+}
+
+/*Style for block quote body text*/
+
+block_quote {
+    margin-left: 5em;
+    font-style: italic;
+}
+
+
+/*Style for quote attributions*/
+
+attribution {
+    font-style: regular;
+    font-weight: 800;
+    text-align: right;
+}
+
+
+/* TODO: implement all classes for syntax highlighting*/
+
+.comment {
+    color: #008800;
+    font-style: italic
+}
+
+.error {
+    border: 1px solid #FF0000
+}
+
+.deleted {
+    color: #A00000
+}
+
+.emph {
+    font-style: italic
+}
+
+.error {
+    color: #FF0000
+}
+
+.heading {
+    color: #000080;
+    font-weight: 900
+}
+
+.inserted {
+    color: #00A000
+}
+
+.output {
+    color: #808080
+}
+
+.prompt {
+    color: #000080;
+    font-weight: 900
+}
+
+.strong {
+    font-weight: 900
+}
+
+.subheading {
+    color: #800080;
+    font-weight: 900
+}
+
+.traceback {
+    color: #0040D0
+}
+
+.keyword {
+    color: #AA22FF;
+    font-weight: 900
+}
+
+.pseudo {
+    font-weight: 500;
+}
+
+.number {
+    color: #666666
+}
+
+.string {
+    color: #BB4444
+}
+
+.string.doc {
+    color: #BB4444;
+    font-style: italic
+}
+
+.string.escape {
+    color: #BB6622;
+    font-weight: 900
+}
+
+.string.interpol {
+    color: #BB6688;
+    font-weight: 900
+}
+
+.string.other {
+    color: #008000
+}
+
+.string.regex {
+    color: #BB6688
+}
+
+.string.symbol {
+    color: #B8860B
+}
+
+.attribute {
+    color: #BB4444
+}
+
+.builtin {
+    color: #AA22FF
+}
+
+.class {
+    color: #0000FF
+}
+
+.constant {
+    color: #880000
+}
+
+.decorator {
+    color: #AA22FF
+}
+
+.entity {
+    color: #999999;
+    font-weight: 900
+}
+
+.exception {
+    color: #D2413A;
+    font-weight: 900
+}
+
+.function {
+    color: #00A000
+}
+
+.label {
+    color: #A0A000
+}
+
+.namespace {
+    color: #0000FF;
+    font-weight: 900
+}
+
+.tag {
+    color: #008000;
+    font-weight: 900
+}
+
+.variable {
+    color: #B8860B
+}
+
+.operator {
+    color: #666666
+}
+
+.word {
+    color: #AA22FF;
+    font-weight: 900
+}

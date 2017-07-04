@@ -332,6 +332,7 @@ class SILETranslator(nodes.NodeVisitor):
             # FIXME: Contents is not in TOC
             # FIXME: native TOC has no links
             # FIXME: last item in the TOC is shorter (?!)
+            # FIXME: local tocs are full instead of local
             if not self.use_docutils_toc:
                 self.start_cmd('define', command='tableofcontents:title')
                 self.doc.append(node.next_node().astext())
