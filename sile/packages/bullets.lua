@@ -10,4 +10,10 @@ SILE.registerCommand("relindent", function(options, content)
         SILE.settings.set("document.rskip", indent)
     end
     SILE.process(content)
+    if options["left"] then
+        SILE.settings.set("document.lskip", lskip)
+    end
+    if options["right"] then
+        SILE.settings.set("document.rskip", rskip)
+    end
 end)
