@@ -293,6 +293,10 @@ class SILETranslator(nodes.NodeVisitor):
         # FIXME: handle sidebar subtitles
         if self.section_level == 0:  # Doc SubTitle
             self.apply_classes(node)
+        elif isinstance(node.parent, nodes.sidebar):  # Sidebar subtitle
+            head, tail = css_to_sile(self.styles['sidebar-subtitle'])
+            self.doc.append(head)
+            node.pending_tail = tail
         else:
             self.apply_classes(node)
 
@@ -745,6 +749,18 @@ def css_to_sile(style):
     start = ''
     trailer = ''
 
+    if has_margin:
+        if 'margin-right' in keys:
+            start += '\\relindent[right=%s]{' % style['margin-right']
+            trailer = '}' + trailer
+        if 'margin-left' in keys:
+            start += '\\relindent[left=%s]{' % style['margin-left']
+            trailer = '}' + trailer
+        if 'margin-top' in keys:
+            start += '\\skip[height=%s]' % style['margin-top']
+        if 'margin-bottom' in keys:
+            trailer = '\\skip[height=%s]' % style['margin-bottom'] + trailer
+
     if has_alignment:
         value = style['text-align']
         if value == 'right':
@@ -757,18 +773,6 @@ def css_to_sile(style):
             start += '\\begin{raggedright}'
             trailer = '\\end{raggedright}' + trailer
         # Fully justified is default
-
-    if has_margin:
-        if 'margin-right' in keys:
-            start += '\\relindent[right=%s]' % style['margin-right']
-            trailer = '\\relindent[right=-%s]' % style['margin-right'] + trailer
-        if 'margin-left' in keys:
-            start += '\\relindent[left=%s]' % style['margin-left']
-            trailer = '\\relindent[left=-%s]' % style['margin-left'] + trailer
-        if 'margin-top' in keys:
-            start += '\\skip[height=%s]' % style['margin-top']
-        if 'margin-bottom' in keys:
-            trailer = '\\skip[height=%s]' % style['margin-bottom'] + trailer
 
     if has_font:
         opts = ','.join('%s=%s' % (k, style[k]) for k in font_keys
