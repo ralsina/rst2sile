@@ -135,11 +135,11 @@ class SILETranslator(nodes.NodeVisitor):
         self.doc.append(node.pending_tail)
 
     def visit_document(self, node):
-        # TODO Handle packages better
         head, tail = css_to_sile(self.styles['body'])
 
         scripts = ''.join(self.package_code)
 
+        # TODO: use a custom class
         self.doc.append('''\\begin[class=book]{document}
         \\script[src=packages/verbatim]
         \\script[src=packages/color]
@@ -435,9 +435,11 @@ class SILETranslator(nodes.NodeVisitor):
     visit_problematic = apply_classes
     depart_problematic = close_classes
 
-    # FIXME: no idea what _generated is
-    visit_generated = apply_classes
-    depart_generated = close_classes
+    # FIXME: Currently ignoring generated, which provides chapter numbers
+    # and such because they are duplicated in SILE's chapter commands.
+    # revisit this when reimplementing them
+    visit_generated = kill_node
+    depart_generated = noop
 
     def visit_admonition(self, node, name=''):
         _name = name.lower()
