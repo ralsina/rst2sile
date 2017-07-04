@@ -635,6 +635,14 @@ class SILETranslator(nodes.NodeVisitor):
     depart_figure = close_classes
     visit_caption = apply_classes
     depart_caption = close_classes
+    def visit_legend(self, node):
+        # This is a hack
+        # Close figure's environment
+        self.close_classes(node.parent)
+        node.parent.pending_tail = ''
+        self.apply_classes(node)
+    def depart_legend(self, node):
+        self.close_classes(node)
 
     # TODO: implement these
     visit_title_reference = noop
@@ -649,8 +657,6 @@ class SILETranslator(nodes.NodeVisitor):
     depart_line_block = noop
     visit_line = noop
     depart_line = noop
-    visit_legend = noop
-    depart_legend = noop
     visit_rubric = noop
     depart_rubric = noop
     visit_doctest_block = noop
