@@ -434,15 +434,16 @@ class SILETranslator(nodes.NodeVisitor):
     visit_generated = apply_classes
     depart_generated = close_classes
 
-    def visit_admonition(self, node, name=None):
-        # TODO: handle specific classes like "note" or "warning"
-        head1, tail1 = css_to_sile(self.styles['admonition'])
+    def visit_admonition(self, node, name='Admonition'):
+        _name = name.lower()
+        adm_style = self.styles.get(_name, self.styles['admonition'])
+        title_style = self.styles.get(_name + '-title', self.styles['admonition-title'])
+        head1, tail1 = css_to_sile(adm_style)
         self.doc.append(head1)
-        if name:
-            head2, tail2 = css_to_sile(self.styles['admonition-title'])
-            self.doc.append(head2)
-            self.doc.append(name)
-            self.doc.append(tail2)
+        head2, tail2 = css_to_sile(title_style)
+        self.doc.append(head2)
+        self.doc.append(name)
+        self.doc.append(tail2)
         node.pending_tail = tail1
 
     depart_admonition = close_classes
@@ -648,6 +649,10 @@ class SILETranslator(nodes.NodeVisitor):
     def depart_legend(self, node):
         self.close_classes(node)
 
+    visit_rubric = apply_classes
+    depart_rubric = close_classes
+
+
     # TODO: implement these
     visit_title_reference = noop
     depart_title_reference = noop
@@ -661,8 +666,6 @@ class SILETranslator(nodes.NodeVisitor):
     depart_line_block = noop
     visit_line = noop
     depart_line = noop
-    visit_rubric = noop
-    depart_rubric = noop
     visit_doctest_block = noop
     depart_doctest_block = noop
     visit_substitution_definition = noop
