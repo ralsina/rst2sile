@@ -547,7 +547,7 @@ class SILETranslator(nodes.NodeVisitor):
     def astext(self):
         sile_code = ''.join(self.doc)
         if sys.argv[0].endswith('rst2pdf'):
-            with tempfile.NamedTemporaryFile('w', delete=False) as sil_file:
+            with tempfile.NamedTemporaryFile('w') as sil_file:
                 sil_file.write(sile_code)
                 pdf_path = sil_file.name + '.pdf'
                 toc_path = sil_file.name + '.toc'
