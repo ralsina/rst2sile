@@ -17,3 +17,8 @@ SILE.registerCommand("relindent", function(options, content)
         SILE.settings.set("document.rskip", rskip)
     end
 end)
+
+-- SILE.require('packages/rebox')
+-- SILE.registerCommand("bullet", function(options, content)
+--     SILE.call("rebox", {width = '0mm'}, {"*"})
+-- end)

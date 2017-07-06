@@ -125,7 +125,7 @@ class SILETranslator(nodes.NodeVisitor):
         classes = ['.' + c for c in node.get('classes', [])]
         classes.insert(0, node.__class__.__name__)
         for classname in classes:
-            head, tail =  css_to_sile(self.styles[classname])
+            head, tail = css_to_sile(self.styles[classname])
             start += '%% %s\n%s' % (classname, head)
             end = tail + end
         self.doc.append(start)
@@ -149,6 +149,8 @@ class SILETranslator(nodes.NodeVisitor):
         \\define[command="verbatim:font"]{\\font%s}
         \\set[parameter=document.parskip,value=12pt]
         \\set[parameter=document.parindent,value=0pt]
+        \\script[src=packages/rebox]
+        \\define[command=bullet]{\\rebox[width=0mm]{\\glue[width=-5mm]\\process}}
         %s
         %s
         \n\n''' % (format_args(**self.styles['verbatim']), scripts, head))
@@ -206,18 +208,14 @@ class SILETranslator(nodes.NodeVisitor):
         self.section_level -= 1
 
     def visit_bullet_list(self, _):
-        if self.list_depth:
-            self.start_cmd('relindent', left="3em")
+        self.start_cmd('relindent', left="3em")
         self.list_depth += 1
 
     def depart_bullet_list(self, _):
         self.list_depth -= 1
-        if self.list_depth:
-            self.end_cmd()
+        self.end_cmd()
 
     def visit_list_item(self, node):
-        # TODO: move the bullet out of the text
-        # flow (see pullquote and rebox packages)
         bullet = bullet_for_node(node)
         bullets = {
             '*': '\u2022',
@@ -225,7 +223,10 @@ class SILETranslator(nodes.NodeVisitor):
             '+': '\u2023',
         }
         bullet = bullets.get(bullet, bullet)
-        self.doc.append('%s ' % bullet)
+        # FIXME: alignment of arbitrary bullets is suboptimal
+        self.start_cmd('bullet')
+        self.doc.append(bullet)
+        self.end_cmd()
 
     depart_list_item = noop
 
@@ -589,8 +590,10 @@ class SILETranslator(nodes.NodeVisitor):
     def visit_classifier(self, node):
         self.apply_classes(node)
         self.doc.append(' : ')
+
     depart_classifier = close_classes
 
+    # TODO: improve using rebox similar to bullet lists
     def visit_option_list(self, node):
         node.table = []
 
@@ -654,7 +657,7 @@ class SILETranslator(nodes.NodeVisitor):
 
     depart_target = noop
 
-    # FIXME: standalone image directives appear inline with next paragraph is stuck 
+    # FIXME: standalone image directives appear inline with next paragraph stuck
     # to it instead of standalone
     def visit_image(self, node):
         self.apply_classes(node)
