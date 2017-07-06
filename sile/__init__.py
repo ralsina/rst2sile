@@ -693,13 +693,25 @@ class SILETranslator(nodes.NodeVisitor):
     visit_rubric = apply_classes
     depart_rubric = close_classes
 
+    def visit_line_block(self, node):
+        self.apply_classes(node)
+
+    # FIXME: Consecutive line blocks are not separated
+    depart_line_block = close_classes
+
+    def visit_line(self, node):
+        self.doc.append('\\glue[width=%dem]' % node.indent)
+        if not node.astext():
+            # Adding unbreakable space because of
+            # https://github.com/simoncozens/sile/issues/479
+            self.doc.append('\u00A0')
+
+    def depart_line(self, node):
+        self.doc.append('\\glue[width=0mm plus 100%fw]\\break\n')
+
     # TODO: implement these
     visit_title_reference = noop
     depart_title_reference = noop
-    visit_line_block = noop
-    depart_line_block = noop
-    visit_line = noop
-    depart_line = noop
     visit_doctest_block = noop
     depart_doctest_block = noop
     visit_substitution_definition = noop

@@ -43,6 +43,10 @@ paragraph {
     text-indent: 0pt;
 }
 
+/* line blocks */
+line_block {
+    margin-top: 0pt;
+}
 
 /*Style for sidebars*/
 
